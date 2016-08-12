@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE muclient>
-<!-- Saved on 2016Äê °ËÔÂ 12ÈÕ ÐÇÆÚÎå, ÏÂÎç 5:15 -->
+<!-- Saved on 2016Äê °ËÔÂ 12ÈÕ ÐÇÆÚÎå, ÏÂÎç 5:39 -->
 <!-- MuClient version 4.94 -->
 <!-- Written by Nick Gammon -->
 <!-- Home Page: http://www.mushclient.com/ -->
@@ -8,7 +8,7 @@
 <world
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-12 17:15:52"
+   date_saved="2016-08-12 17:39:43"
 
    auto_say_override_prefix="-"
    auto_say_string="say "
@@ -100,6 +100,7 @@
    underline_hyperlinks="y"
    unpause_on_send="y"
    use_custom_link_colour="y"
+   use_mxp="2"
    warn_if_scripting_inactive="y"
    wrap="y"
    wrap_column="150"
@@ -113,7 +114,7 @@
 <triggers
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-12 17:15:52"
+   date_saved="2016-08-12 17:39:43"
   >
 </triggers>
 
@@ -122,7 +123,7 @@
 <aliases
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-12 17:15:52"
+   date_saved="2016-08-12 17:39:43"
   >
 </aliases>
 
@@ -131,7 +132,7 @@
 <timers
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-12 17:15:52"
+   date_saved="2016-08-12 17:39:43"
   >
 </timers>
 
@@ -140,7 +141,7 @@
 <macros
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-12 17:15:52"
+   date_saved="2016-08-12 17:39:43"
   >
 
   <macro name="up" type="send_now" >
@@ -234,7 +235,7 @@
 <variables
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-12 17:15:52"
+   date_saved="2016-08-12 17:39:43"
   >
 </variables>
 
@@ -243,7 +244,7 @@
 <colours
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-12 17:15:52"
+   date_saved="2016-08-12 17:39:43"
   >
 
 <ansi>
@@ -300,7 +301,7 @@
 <keypad
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-12 17:15:52"
+   date_saved="2016-08-12 17:39:43"
   >
 
   <key name="0" >
@@ -414,7 +415,7 @@
 <printing
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-12 17:15:52"
+   date_saved="2016-08-12 17:39:43"
   >
 
 <ansi>
