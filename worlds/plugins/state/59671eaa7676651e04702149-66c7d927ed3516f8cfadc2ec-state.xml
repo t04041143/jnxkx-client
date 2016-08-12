@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE muclient>
-<!-- Saved on 2016Äê °ËÔÂ 12ÈÕ ÐÇÆÚÎå, ÏÂÎç 3:49 -->
+<!-- Saved on 2016Äê °ËÔÂ 12ÈÕ ÐÇÆÚÎå, ÏÂÎç 5:09 -->
 <!-- MuClient version 4.94 -->
 <!-- Written by Nick Gammon -->
 <!-- Home Page: http://www.mushclient.com/ -->
@@ -14,13 +14,13 @@
 <variables
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-12 15:49:41"
+   date_saved="2016-08-12 17:09:44"
   >
   <variable name="enabled">true</variable>
   <variable name="mw_hp_window_windowflags">2</variable>
   <variable name="mw_hp_window_windowmode">0</variable>
-  <variable name="mw_hp_window_windowx">871</variable>
-  <variable name="mw_hp_window_windowy">130</variable>
+  <variable name="mw_hp_window_windowx">0</variable>
+  <variable name="mw_hp_window_windowy">0</variable>
   <variable name="mw_skill_window_windowflags">2</variable>
   <variable name="mw_skill_window_windowmode">4</variable>
   <variable name="mw_skill_window_windowx">0</variable>
