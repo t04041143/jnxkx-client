@@ -52,6 +52,35 @@ function Fun_SetTriggerLine(name, line)
     end
 end
 
+---- 绘制窗口
+function DrawStatusBar(params)
+	effectiveWidth = math.max(params.min_width, math.min(params.width, GetInfo(281)-params.windowinfo.window_left))
+	if params.first_time  then
+		check (WindowCreate (winParams.pluginId,
+			windowinfo.window_left, windowinfo.window_top,   -- left, top (auto-positions)
+			effectiveWidth,     -- width
+			height,  -- height
+			windowinfo.window_mode,       -- auto-position: middle right
+			windowinfo.window_flags,  -- flags
+			background_colour) )
+		-- Add handler for resizing
+		WindowAddHotspot(win, "resize", effectiveWidth-RESIZE_TAG_SIZE, height-RESIZE_TAG_SIZE, effectiveWidth, height, "MouseOver", "CancelMouseOver", "MouseDown", "CancelMouseDown", "MouseUp", "", 6, 0)
+		WindowDragHandler(win, "resize", "ResizeMoveCallback", "ResizeReleaseCallback", 0)
+		CallPlugin("462b665ecb569efbf261422f", "registerMiniwindow", win)
+		WindowShow (win, true)
+	else
+		-- everything has already been made
+		-- just move them back into place
+		WindowResize(win, effectiveWidth, height, background_colour)
+		WindowMoveHotspot(win, "resize", effectiveWidth-RESIZE_TAG_SIZE, height-RESIZE_TAG_SIZE, effectiveWidth, height)
+	end
+
+	-- Add the drag handler so they can move the window around
+	movewindow.add_drag_handler (win, 0, 0, 0, 0)
+
+	DisplayStatsPage()
+end
+
 -- 函数定义 结束
 ---------------------------------------------------------------------------------
 
@@ -60,7 +89,7 @@ end
 
 -- 窗口默认参数
 local winParams = {
-    firstTime = true,
+    first_time = true,
     background_colour = 0x000000,
     border_color = 0xcccccc,
     width = 1137,
@@ -74,6 +103,8 @@ local winParams = {
     font_id = "f1",
     font_name = "Arial",
     font_size = "8",
+    windowinfo = null,
+    pluginId,
 }
 
 -- 状态默认数据
@@ -89,7 +120,7 @@ local defaultStauts = {
 }
 
 -- 获得当前插件的唯一ID（24字符）
-local pluginId = GetPluginID()
+winParams.pluginId = GetPluginID()
 
 
 -- 触发器列表
@@ -133,9 +164,9 @@ function OnPluginInstall()
     WindowCreate(win, 600, 600, 1, 1, 0, 0, winParams.background_colour)
 
     -- 设置窗体字体
-    WindowFont(pluginId, winParams.font_id, winParams.font_name, winParams.font_size, false, false, false, false)
+    WindowFont(winParams.pluginId, winParams.font_id, winParams.font_name, winParams.font_size, false, false, false, false)
     -- 设置窗体拖动处理器
-    local windowinfo = movewindow.install(pluginId, miniwin.pos_top_right, miniwin.create_absolute_location, false, nil, { mouseup = MouseUp, mousedown = LeftClickOnly, dragmove = LeftClickOnly, dragrelease = LeftClickOnly }, { x = default_x, y = default_y })
+    winParams.windowinfo = movewindow.install(winParams.pluginId, miniwin.pos_top_right, miniwin.create_absolute_location, false, nil, { mouseup = MouseUp, mousedown = LeftClickOnly, dragmove = LeftClickOnly, dragrelease = LeftClickOnly }, { x = default_x, y = default_y })
 
     -- 统计需要展示的属性文本和数量
     local barTexts = ""
@@ -152,12 +183,12 @@ function OnPluginInstall()
     local line_height = font_height + 1
 
     -- 根据显示的数据长度，设定窗口宽度
-    local curr_width = math.max(40, WindowTextWidth(pluginId, winParams.font_id, barTexts) + (winParams.left_margin * (numBars + 2)))
+    local curr_width = math.max(40, WindowTextWidth(winParams.pluginId, winParams.font_id, barTexts) + (winParams.left_margin * (numBars + 2)))
     winParams.height = winParams.top_margin * 2 + line_height
     winParams.width = math.max(winParams.width, winParams.min_width)
 
     -- 绘制窗口
-    --DrawStatusBar(defaultWinParams);
+    DrawStatusBar(winParams);
 end
 
 -- 插件需要响应的事件 结束
