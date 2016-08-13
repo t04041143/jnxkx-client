@@ -2,18 +2,18 @@
 <!DOCTYPE muclient>
 
 <muclient>
-<plugin
-   name="hp_status_bars"
-   author="醉轻侯"
-   id="66c7d927ed3516f8cfadc2ec"
-   language="Lua"
-   purpose="江南侠客行HP状态窗口"
-   save_state="y"
-   date_written="2016-08-18 00:22:37"
-   requires="4.94"
-   version="1.0"
-   >
+<plugin 
+	name="hp_status_bars"
+	author="醉轻侯" id="66c7d927ed3516f8cfadc2ec"
+	language="Lua" purpose="江南侠客行HP状态栏"
+	save_state="y" date_written="2016-08-18 00:22:37"
+	requires="4.94"
+	version="1.0">
+    <description trim="y">
+        江南侠客行HP状态栏
+    </description>
 </plugin>
+
 
 <!--  Get our standard constants -->
 <include name="constants.lua"/>
@@ -31,9 +31,23 @@ default_width         = 1137
 default_x             = 0
 default_y             = 552
 
+-- 获得当前插件的唯一ID（24字符）
+win = GetPluginID()
+
 -- 插件初始化时，创建状态窗口
-function OnPluginInstall ()
-	background_colour = tonumber (GetVariable ("background_colour")) or background_colour
+function OnPluginInstall()
+	-- 获取背景颜色
+	background_colour = tonumber(GetVariable("background_colour")) or background_colour
+	-- 创建窗口
+	WindowCreate(win, 600, 600, 1, 1, 0, 0, background_colour)
+
+	-- 设置窗体字体
+	font_id = "statmon_font"
+	local fonts = utils.getfontfamilies()
+	if not fonts.Dina then
+		AddFont (GetInfo(66) .. "\\Dina.fon")
+		fonts = utils.getfontfamilies()
+	end
 end
 
 ]]>
