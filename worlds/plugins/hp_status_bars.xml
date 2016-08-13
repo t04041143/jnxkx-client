@@ -23,32 +23,145 @@
 <![CDATA[
 
 require "movewindow"
+require "gauge"
 
--- 窗口创建参数
-background_colour     = 0x000000
-border_color          = 0xcccccc
-default_width         = 1137
-default_x             = 0
-default_y             = 552
+---------------------------------------------------------------------------------
+-- 函数定义 开始
+
+---- 描述: 自定义AddTrigger函数，同时会加入组
+function Fun_AddTrigger(name, match, group, script)
+    local value = AddTrigger(name, match, "", trigger_flag.KeepEvaluating + trigger_flag.RegularExpression + trigger_flag.Replace + trigger_flag.Temporary, custom_colour.NoChange, 0, "", script)
+    SetTriggerOption(name, "group", group)
+
+    if value ~= 0 then
+        ColourNote("red", "black", name .. " Fun_AddTrigger false")
+    end
+
+    return value
+end
+
+---- 描述: 设置触发器行数
+function Fun_SetTriggerLine(name, line)
+    local value = SetTriggerOption(name, "multi_line", "y")
+    if value ~= 0 then
+        ColourNote("red", "black", name .. " Fun_SetTriggerLine false")
+    end
+    value = SetTriggerOption(name, "lines_to_match", line)
+    if value ~= 0 then
+        ColourNote("red", "black", name .. " Fun_SetTriggerLine false")
+    end
+end
+
+-- 函数定义 结束
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+-- 程序初始化 开始
+
+-- 窗口默认参数
+local winParams = {
+    firstTime = true,
+    background_colour = 0x000000,
+    border_color = 0xcccccc,
+    width = 1137,
+    height = 0,
+    x = 0,
+    y = 552,
+    resize_tag = 10,
+    min_width = 40,
+    left_margin = 10,
+    top_margin = 5,
+    font_id = "f1",
+    font_name = "Arial",
+    font_size = "8",
+}
+
+-- 状态默认数据
+local defaultStauts = {
+    exp = { name = "经验:", val = 0, 0x0000ff, 0x00ffff },
+    pot = { name = "潜能:", val = 0, 0x0000ff, 0x00ffff },
+    neili = { name = "内力:", val = 0, curr_max = 0, 0x0000ff, 0x00ffff },
+    jingli = { name = "精力:", val = 0, curr_max = 0, 0x0000ff, 0x00ffff },
+    qi = { name = "气血:", val = 0, curr_max = 0, max = 0, 0x00ff00, 0x004400 },
+    jing = { name = "精神:", val = 0, curr_max = 0, max = 0, 0xff5500, 0x442200 },
+    food = { name = "食物:", val = 0, max = 0, 0x00ffff, 0x004444 },
+    water = { name = "饮水:", val = 0, max = 0, 0xffffff, 0x444444 }
+}
 
 -- 获得当前插件的唯一ID（24字符）
-win = GetPluginID()
+local pluginId = GetPluginID()
 
--- 插件初始化时，创建状态窗口
-function OnPluginInstall()
-	-- 获取背景颜色
-	background_colour = tonumber(GetVariable("background_colour")) or background_colour
-	-- 创建窗口
-	WindowCreate(win, 600, 600, 1, 1, 0, 0, background_colour)
 
-	-- 设置窗体字体
-	font_id = "statmon_font"
-	local fonts = utils.getfontfamilies()
-	if not fonts.Dina then
-		AddFont (GetInfo(66) .. "\\Dina.fon")
-		fonts = utils.getfontfamilies()
-	end
+-- 触发器列表
+local triggerList = {
+    {
+        -- hpbrief命令
+        funame = "brief",
+        funtrigger = "^[> ]*#(.+),(.+),(\\d+),(\\d+),(\\d+),(\\d+)\\n#(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+)",
+        line = 2,
+    },
+    {
+        -- 自己受击
+        funame = "selfbehit",
+        funtrigger = "^[> ]*[(] 你.+『(\\S+)[(]damage.*气血: (.+)[%][/](.+)[%][)]』",
+    },
+    {
+        -- 受击
+        funame = "behit",
+        funtrigger = "『(\\S+)[(]damage.*气血: (.+)[%][/](.+)[%][)]』",
+    }
+}
+
+-- 生成触发器
+for i = 1, #triggerList do
+    Fun_AddTrigger("trigger_hp_" .. triggerList[i].funame, triggerList[i].funtrigger, "hp_status", "hp_" .. triggerList[i].funame)
+    if triggerList[i].line ~= nil and triggerList[i].line > 1 then
+        Fun_SetTriggerLine("trigger_hp_" .. triggerList[i].funame, triggerList[i].line)
+    end
 end
+
+
+-- 程序初始化 结束
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+-- 插件需要响应的事件 开始
+
+--- - 插件初始
+function OnPluginInstall()
+    -- 创建窗口
+    WindowCreate(win, 600, 600, 1, 1, 0, 0, winParams.background_colour)
+
+    -- 设置窗体字体
+    WindowFont(pluginId, winParams.font_id, winParams.font_name, winParams.font_size, false, false, false, false)
+    -- 设置窗体拖动处理器
+    local windowinfo = movewindow.install(pluginId, miniwin.pos_top_right, miniwin.create_absolute_location, false, nil, { mouseup = MouseUp, mousedown = LeftClickOnly, dragmove = LeftClickOnly, dragrelease = LeftClickOnly }, { x = default_x, y = default_y })
+
+    -- 统计需要展示的属性文本和数量
+    local barTexts = ""
+    local numBars = 0
+    for i, v in pairs(showBar) do
+        if (v[2] == true) then
+            barTexts = barTexts .. v[3]
+            numBars = numBars + 1
+        end
+    end
+
+    local font_height = WindowFontInfo(win, font_id, 1) - WindowFontInfo(win, font_id, 4) + 1
+    local font_width = WindowFontInfo(win, font_id, 6)
+    local line_height = font_height + 1
+
+    -- 根据显示的数据长度，设定窗口宽度
+    local curr_width = math.max(40, WindowTextWidth(pluginId, winParams.font_id, barTexts) + (winParams.left_margin * (numBars + 2)))
+    winParams.height = winParams.top_margin * 2 + line_height
+    winParams.width = math.max(winParams.width, winParams.min_width)
+
+    -- 绘制窗口
+    --DrawStatusBar(defaultWinParams);
+end
+
+-- 插件需要响应的事件 结束
+---------------------------------------------------------------------------------
 
 ]]>
 </script>

@@ -1524,7 +1524,7 @@ local TriggerList =
 	},
 }
 for i=1,#TriggerList do
-	Fun_AddTrigger("trigger_hp_"..TriggerList[i].funame, TriggerList[i].funtrigger, "hp", "hp_"..TriggerList[i].funame)
+	Fun_AddTrigger("trigger_hp_"..TriggerList[i].funame, TriggerList[i].funtrigger, "hpbrief", "hp_"..TriggerList[i].funame)
 	if TriggerList[i].line ~= nil and TriggerList[i].line > 1 then
 		Fun_SetTriggerLine("trigger_hp_"..TriggerList[i].funame, TriggerList[i].line)
 	end
