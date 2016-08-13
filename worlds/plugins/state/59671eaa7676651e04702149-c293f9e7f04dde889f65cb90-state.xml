@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE muclient>
-<!-- Saved on 2016Äê °ËÔÂ 13ÈÕ ÐÇÆÚÁù, ÉÏÎç 10:54 -->
+<!-- Saved on 2016Äê °ËÔÂ 13ÈÕ ÐÇÆÚÁù, ÉÏÎç 11:04 -->
 <!-- MuClient version 4.94 -->
 <!-- Written by Nick Gammon -->
 <!-- Home Page: http://www.mushclient.com/ -->
 
-<!-- ²å¼þ×´Ì¬ÒÑ±»±£´æ¡£²å¼þ:¡°Main_Layout¡±£¬ÓÎÏ·:¡°jnxkx¡±¡£ -->
+<!-- ²å¼þ×´Ì¬ÒÑ±»±£´æ¡£²å¼þ:¡°main_window¡±£¬ÓÎÏ·:¡°jnxkx¡±¡£ -->
 
 <muclient>
 
@@ -14,13 +14,12 @@
 <variables
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-13 10:54:18"
+   date_saved="2016-08-13 11:04:17"
   >
   <variable name="enabled">true</variable>
-  <variable name="lock_down_miniwindows">0</variable>
-  <variable name="trbottom">479</variable>
+  <variable name="trbottom">476</variable>
   <variable name="trleft">7</variable>
-  <variable name="trright">786</variable>
-  <variable name="trtop">141</variable>
+  <variable name="trright">650</variable>
+  <variable name="trtop">97</variable>
 </variables>
 </muclient>
