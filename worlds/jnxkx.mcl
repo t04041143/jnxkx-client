@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE muclient>
-<!-- Saved on 2016Äê °ËÔÂ 13ÈÕ ÐÇÆÚÁù, ÉÏÎç 10:13 -->
+<!-- Saved on 2016Äê °ËÔÂ 13ÈÕ ÐÇÆÚÁù, ÉÏÎç 10:54 -->
 <!-- MuClient version 4.94 -->
 <!-- Written by Nick Gammon -->
 <!-- Home Page: http://www.mushclient.com/ -->
@@ -8,7 +8,7 @@
 <world
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-13 10:13:32"
+   date_saved="2016-08-13 10:54:18"
 
    auto_say_override_prefix="-"
    auto_say_string="say "
@@ -114,7 +114,7 @@
 <triggers
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-13 10:13:32"
+   date_saved="2016-08-13 10:54:18"
   >
 </triggers>
 
@@ -123,7 +123,7 @@
 <aliases
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-13 10:13:32"
+   date_saved="2016-08-13 10:54:18"
   >
 </aliases>
 
@@ -132,7 +132,7 @@
 <timers
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-13 10:13:32"
+   date_saved="2016-08-13 10:54:18"
   >
 </timers>
 
@@ -141,7 +141,7 @@
 <macros
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-13 10:13:32"
+   date_saved="2016-08-13 10:54:18"
   >
 
   <macro name="up" type="send_now" >
@@ -235,7 +235,7 @@
 <variables
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-13 10:13:32"
+   date_saved="2016-08-13 10:54:18"
   >
 </variables>
 
@@ -244,7 +244,7 @@
 <colours
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-13 10:13:32"
+   date_saved="2016-08-13 10:54:18"
   >
 
 <ansi>
@@ -301,7 +301,7 @@
 <keypad
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-13 10:13:32"
+   date_saved="2016-08-13 10:54:18"
   >
 
   <key name="0" >
@@ -415,7 +415,7 @@
 <printing
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-13 10:13:32"
+   date_saved="2016-08-13 10:54:18"
   >
 
 <ansi>
@@ -441,6 +441,6 @@
 
 <!-- plugins -->
 <include name="main_layout.xml" plugin="y" />
-<include name="status_bars.xml" plugin="y" />
 <include name="fullme_code.xml" plugin="y" />
+<include name="hp_status_bars.xml" plugin="y" />
 </muclient>
