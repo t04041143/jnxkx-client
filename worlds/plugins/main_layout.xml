@@ -8,13 +8,13 @@
 <muclient>
 
 <plugin
-   name="Main_Layout"
-   author="zk"
+   name="主窗口"
+   author="醉轻侯"
    id="c293f9e7f04dde889f65cb90"
    language="Lua"
-   purpose="Layout Main Screen"
+   purpose="布局主窗口"
    date_written="2010-08-27 18:32:06"
-   requires="4.56"
+   requires="4.94"
    version="1.0"
    save_state="y"
 >
