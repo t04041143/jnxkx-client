@@ -115,6 +115,19 @@ end
 
 function DisplayStatsInfo(params)
     WindowRectOp(params.pluginId, 2, 2, 2, -2, -2, params.background_colour)
+       -- draw edge frame.
+   WindowRectOp (params.pluginId, 1, 0, 0, 0, 0, params.border_color, 15)
+   WindowRectOp (params.pluginId, 1, 1, 1, -1, -1, 0x777777, 15)
+
+   -- draw the resize widget bottom right corner.
+   WindowLine(params.pluginId, params.effectiveWidth-3, params.height-2, params.effectiveWidth-2, params.height-3, 0xffffff, 0, 2)
+   WindowLine(params.pluginId, params.effectiveWidth-4, params.height-2, params.effectiveWidth-2, params.height-4, 0x696969, 0, 1)
+   WindowLine(params.pluginId, params.effectiveWidth-6, params.height-2, params.effectiveWidth-2, params.height-6, 0xffffff, 0, 2)
+   WindowLine(params.pluginId, params.effectiveWidth-7, params.height-2, params.effectiveWidth-2, params.height-7, 0x696969, 0, 1)
+   WindowLine(params.pluginId, params.effectiveWidth-9, params.height-2, params.effectiveWidth-2, params.height-9, 0xffffff, 0, 2)
+   WindowLine(params.pluginId, params.effectiveWidth-10, params.height-2, params.effectiveWidth-2, params.height-10, 0x696969, 0, 1)
+   WindowLine(params.pluginId, params.effectiveWidth-12, params.height-2, params.effectiveWidth-2, params.height-12, 0xffffff, 0, 2)
+   WindowLine(params.pluginId, params.effectiveWidth-13, params.height-2, params.effectiveWidth-2, params.height-13, 0x696969, 0, 1)
 end
 
 -- 函数定义 结束
