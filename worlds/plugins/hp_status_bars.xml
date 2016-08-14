@@ -31,6 +31,16 @@
                 script="onLogin"
                 sequence="100">
         </trigger>
+        <trigger name="hpbrief"
+                enabled="y"
+                match="^[> ]*#(.+),(.+),(\d+),(\d+),(\d+),(\d+)\n#(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)"
+                regexp="y"
+                multi_line="y"
+                lines_to_match="2"
+                keep_evaluating="y"
+                script="onHpbrief"
+                sequence="101">
+        </trigger>
     </triggers>
 
 
@@ -44,121 +54,6 @@ require "movewindow"
 require "gauge"
 
 ---------------------------------------------------------------------------------
--- 函数定义 开始
-
----- 用户登录时的处理
-function onLogin()
-    SetVariable("login","1")
-    Send("hpbrief")
-end
-
----- 心跳检测
-function onHeartbeat()
-    if IsConnected() then
-        -- 如果用户登录，启动刷新HP的定时器
-        if GetVariable("login") ~= nil and (not GetTimerInfo("hpbrief", 6)) then
-            EnableTimer("hpbrief",true)
-        end        
-    else
-        -- 如果断开连接，那么停止定时器
-        if GetTimerInfo("hpbrief", 6) then
-            EnableTimer("hpbrief",false)
-        end
-        -- 如果登录标志存在，那么删除该标志
-        if GetVariable("login") ~= nil then
-            DeleteVariable("login")
-        end
-    end
-end
-
----- Called as the window is dragged around. This function and those below are
-function ResizeMoveCallback()
-   --[[ posx, posy = WindowInfo(win, 17), WindowInfo (win, 18)
-   width = width + posx - startx
-   startx = posx
-   if (width < MIN_WIDTH) then
-      width = MIN_WIDTH
-      startx = windowinfo.window_left+width
-   elseif (windowinfo.window_left+width > GetInfo(281)) then
-      width = GetInfo(281)-windowinfo.window_left
-      startx = GetInfo(281)
-   end 
-
-   if (utils.timer() - lastRefresh > 0.0333) then
-      SetUpHotspotsAndDraw(false)
-      lastRefresh = utils.timer()
-   end
-   ]]--
-end
-
-lastRefresh = 0
-
----- Called after the resize widget is released.
-function ResizeReleaseCallback()
-   --SetUpHotspotsAndDraw(false)
-end
-
----- 绘制窗口
-function DrawStatusBar(params)
-    params.effectiveWidth = math.max(params.min_width, math.min(params.width, GetInfo(281) - params.windowinfo.window_left))
-    if params.first_time then
-        check(WindowCreate(params.pluginId,
-            params.windowinfo.window_left, params.windowinfo.window_top, -- left, top (auto-positions)
-            params.effectiveWidth, -- width
-            params.height, -- height
-            params.windowinfo.window_mode, -- auto-position: middle right
-            params.windowinfo.window_flags, -- flags
-            params.background_colour))
-        -- Add handler for resizing
-        WindowAddHotspot(
-            params.pluginId, "resize", 
-            params.effectiveWidth-params.resize_tag_size, 
-            params.height-params.resize_tag_size, 
-            params.effectiveWidth, 
-            params.height, 
-            "MouseOver", "CancelMouseOver", "MouseDown", "CancelMouseDown", "MouseUp", "", 6, 0)
-        WindowDragHandler(params.pluginId, "resize", "ResizeMoveCallback", "ResizeReleaseCallback", 0)
-        CallPlugin("462b665ecb569efbf261422f", "registerMiniwindow", params.pluginId)
-        WindowShow(params.pluginId, true)
-    else
-        -- everything has already been made
-        -- just move them back into place
-        WindowResize(params.pluginId, params.effectiveWidth, params.height, params.background_colour)
-        --WindowMoveHotspot(winParams.pluginId, "resize", effectiveWidth-RESIZE_TAG_SIZE, height-RESIZE_TAG_SIZE, effectiveWidth, height)
-    end
-
-    -- Add the drag handler so they can move the window around
-    movewindow.add_drag_handler(params.pluginId, 0, 0, 0, 0)
-
-    DisplayStatsInfo(params)
-end
-
----- 展示HP中状态信息
-function DisplayStatsInfo(params)
-    -- 绘制背景
-    WindowRectOp(params.pluginId, 2, 2, 2, -2, -2, params.background_colour)
-   
-   -- 绘制窗口边框.
-   WindowRectOp (params.pluginId, 1, 0, 0, 0, 0, params.border_color, 15)
-   WindowRectOp (params.pluginId, 1, 1, 1, -1, -1, 0x777777, 15)
-
-   -- 绘制调整大小的按钮
-   WindowLine(params.pluginId, params.effectiveWidth-3, params.height-2, params.effectiveWidth-2, params.height-3, 0xffffff, 0, 2)
-   WindowLine(params.pluginId, params.effectiveWidth-4, params.height-2, params.effectiveWidth-2, params.height-4, 0x696969, 0, 1)
-   WindowLine(params.pluginId, params.effectiveWidth-6, params.height-2, params.effectiveWidth-2, params.height-6, 0xffffff, 0, 2)
-   WindowLine(params.pluginId, params.effectiveWidth-7, params.height-2, params.effectiveWidth-2, params.height-7, 0x696969, 0, 1)
-   WindowLine(params.pluginId, params.effectiveWidth-9, params.height-2, params.effectiveWidth-2, params.height-9, 0xffffff, 0, 2)
-   WindowLine(params.pluginId, params.effectiveWidth-10, params.height-2, params.effectiveWidth-2, params.height-10, 0x696969, 0, 1)
-   WindowLine(params.pluginId, params.effectiveWidth-12, params.height-2, params.effectiveWidth-2, params.height-12, 0xffffff, 0, 2)
-   WindowLine(params.pluginId, params.effectiveWidth-13, params.height-2, params.effectiveWidth-2, params.height-13, 0x696969, 0, 1)
-
-
-end
-
--- 函数定义 结束
----------------------------------------------------------------------------------
-
----------------------------------------------------------------------------------
 -- 程序初始化 开始
 
 -- 窗口默认参数
@@ -168,6 +63,7 @@ local winParams = {
     border_color = 0xcccccc,
     width = 1137,
     height = 0,
+    line_height = 0,
     x = 0,
     y = 552,
     resize_tag_size = 10,
@@ -183,14 +79,14 @@ local winParams = {
 
 -- 状态默认数据
 local status = {
-    exp = { name = "经验:", val = 0, 0x0000ff, 0x00ffff },
-    pot = { name = "潜能:", val = 0, 0x0000ff, 0x00ffff },
-    neili = { name = "内力:", val = 0, curr_max = 0, 0x0000ff, 0x00ffff },
-    jingli = { name = "精力:", val = 0, curr_max = 0, 0x0000ff, 0x00ffff },
-    qi = { name = "气血:", val = 0, curr_max = 0, max = 0, 0x00ff00, 0x004400 },
-    jing = { name = "精神:", val = 0, curr_max = 0, max = 0, 0xff5500, 0x442200 },
-    food = { name = "食物:", val = 0, max = 0, 0x00ffff, 0x004444 },
-    water = { name = "饮水:", val = 0, max = 0, 0xffffff, 0x444444 }
+    exp = { label = "经验:", val = 0, color1=0x0000ff, color2=0x00ffff },
+    pot = { label = "潜能:", val = 0, color1=0x0000ff, color2=0x00ffff },
+    neili = { label = "内力:", val = 0, max = 0, color1=0x0000ff, color2=0x00ffff },
+    jingli = { label = "精力:", val = 0, max = 0, color1=0x0000ff, color2=0x00ffff },
+    qi = { label = "气血:", val = 0, curr_max = 0, max = 0, color1=0x00ff00, color2=0x004400 },
+    jing = { label = "精神:", val = 0, curr_max = 0, max = 0, color1=0xff5500, color2=0x442200 },
+    food = { label = "食物:", val = 0, max = 0, color1=0x00ffff, color2=0x004444 },
+    water = { label = "饮水:", val = 0, max = 0, color1=0xffffff, color2=0x444444 }
 }
 
 -- 获得当前插件的唯一ID（24字符）
@@ -255,17 +151,17 @@ function OnPluginInstall()
     local barTexts = ""
     local numBars = 0
     for i, v in pairs(status) do
-        barTexts = barTexts .. v.name
+        barTexts = barTexts .. v.label
         numBars = numBars + 1
     end
 
     local font_height = WindowFontInfo(winParams.pluginId, winParams.font_id, 1) - WindowFontInfo(winParams.pluginId, winParams.font_id, 4) + 1
     local font_width = WindowFontInfo(winParams.pluginId, winParams.font_id, 6)
-    local line_height = font_height + 1
+    winParams.line_height = font_height + 1
 
     -- 根据显示的数据长度，设定窗口宽度
     local curr_width = math.max(40, WindowTextWidth(winParams.pluginId, winParams.font_id, barTexts) + (winParams.left_margin * (numBars + 2)))
-    winParams.height = (winParams.top_margin * 2 + line_height)*2
+    winParams.height = (winParams.top_margin * 2 + winParams.line_height)*2
     winParams.width = math.max(winParams.width, winParams.min_width)
 
     -- 绘制窗口
@@ -294,6 +190,158 @@ end
 
 -- 插件需要响应的事件 结束
 ---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+-- 函数定义 开始
+
+---- 用户登录时的处理
+function onLogin()
+    SetVariable("login","1")
+    Send("hpbrief")
+end
+
+---- 心跳检测
+function onHeartbeat()
+    if IsConnected() then
+        -- 如果用户登录，启动刷新HP的定时器
+        if GetVariable("login") ~= nil and (not GetTimerInfo("hpbrief", 6)) then
+            EnableTimer("hpbrief",true)
+        end        
+    else
+        -- 如果断开连接，那么停止定时器
+        if GetTimerInfo("hpbrief", 6) then
+            EnableTimer("hpbrief",false)
+        end
+        -- 如果登录标志存在，那么删除该标志
+        if GetVariable("login") ~= nil then
+            DeleteVariable("login")
+        end
+    end
+end
+
+function onHpbrief(n,l,w)
+    status.exp.val             = w[1]
+    status.pot.val              = tonumber(w[2])
+    status.neili.max     = tonumber(w[3])
+    status.neili.val            = tonumber(w[4])
+    status.jingli.max    = tonumber(w[5])
+    status.jingli.val           = tonumber(w[6])
+    status.qi.max           = tonumber(w[7])
+    status.qi.curr_max         = tonumber(w[8])
+    status.qi.val               = tonumber(w[9])
+    status.jing.max         = tonumber(w[10])
+    status.jing.curr_max      = tonumber(w[11])
+    status.jing.val             = tonumber(w[12])
+    DisplayStatsInfo(winParams)
+end
+
+---- Called as the window is dragged around. This function and those below are
+function ResizeMoveCallback()
+   --[[ posx, posy = WindowInfo(win, 17), WindowInfo (win, 18)
+   width = width + posx - startx
+   startx = posx
+   if (width < MIN_WIDTH) then
+      width = MIN_WIDTH
+      startx = windowinfo.window_left+width
+   elseif (windowinfo.window_left+width > GetInfo(281)) then
+      width = GetInfo(281)-windowinfo.window_left
+      startx = GetInfo(281)
+   end 
+
+   if (utils.timer() - lastRefresh > 0.0333) then
+      SetUpHotspotsAndDraw(false)
+      lastRefresh = utils.timer()
+   end
+   ]]--
+end
+
+lastRefresh = 0
+
+---- Called after the resize widget is released.
+function ResizeReleaseCallback()
+   --SetUpHotspotsAndDraw(false)
+end
+
+---- 绘制窗口
+function DrawStatusBar(params)
+    params.effectiveWidth = math.max(params.min_width, math.min(params.width, GetInfo(281) - params.windowinfo.window_left))
+    if params.first_time then
+        -- 创建窗口
+        check(WindowCreate(params.pluginId,
+            params.windowinfo.window_left, params.windowinfo.window_top, -- left, top (auto-positions)
+            params.effectiveWidth, -- width
+            params.height, -- height
+            params.windowinfo.window_mode, -- auto-position: middle right
+            params.windowinfo.window_flags, -- flags
+            params.background_colour))
+        -- 增加调节大小的热点
+        WindowAddHotspot(
+            params.pluginId, "resize", 
+            params.effectiveWidth-params.resize_tag_size, 
+            params.height-params.resize_tag_size, 
+            params.effectiveWidth, 
+            params.height, 
+            "MouseOver", "CancelMouseOver", "MouseDown", "CancelMouseDown", "MouseUp", "", 6, 0)
+        WindowDragHandler(params.pluginId, "resize", "ResizeMoveCallback", "ResizeReleaseCallback", 0)
+        CallPlugin("462b665ecb569efbf261422f", "registerMiniwindow", params.pluginId)
+        -- 显示窗口
+        WindowShow(params.pluginId, true)
+    else
+        -- everything has already been made
+        -- just move them back into place
+        WindowResize(params.pluginId, params.effectiveWidth, params.height, params.background_colour)
+        --WindowMoveHotspot(winParams.pluginId, "resize", effectiveWidth-RESIZE_TAG_SIZE, height-RESIZE_TAG_SIZE, effectiveWidth, height)
+    end
+
+    -- Add the drag handler so they can move the window around
+    movewindow.add_drag_handler(params.pluginId, 0, 0, 0, 0)
+
+    DisplayStatsInfo(params)
+end
+
+---- 展示HP中状态信息
+function DisplayStatsInfo(params)
+    -- 绘制背景
+    WindowRectOp(params.pluginId, 2, 2, 2, -2, -2, params.background_colour)
+   
+    -- 绘制窗口边框.
+    WindowRectOp (params.pluginId, 1, 0, 0, 0, 0, params.border_color, 15)
+    WindowRectOp (params.pluginId, 1, 1, 1, -1, -1, 0x777777, 15)
+
+    -- 绘制调整大小的按钮
+    WindowLine(params.pluginId, params.effectiveWidth-3, params.height-2, params.effectiveWidth-2, params.height-3, 0xffffff, 0, 2)
+    WindowLine(params.pluginId, params.effectiveWidth-4, params.height-2, params.effectiveWidth-2, params.height-4, 0x696969, 0, 1)
+    WindowLine(params.pluginId, params.effectiveWidth-6, params.height-2, params.effectiveWidth-2, params.height-6, 0xffffff, 0, 2)
+    WindowLine(params.pluginId, params.effectiveWidth-7, params.height-2, params.effectiveWidth-2, params.height-7, 0x696969, 0, 1)
+    WindowLine(params.pluginId, params.effectiveWidth-9, params.height-2, params.effectiveWidth-2, params.height-9, 0xffffff, 0, 2)
+    WindowLine(params.pluginId, params.effectiveWidth-10, params.height-2, params.effectiveWidth-2, params.height-10, 0x696969, 0, 1)
+    WindowLine(params.pluginId, params.effectiveWidth-12, params.height-2, params.effectiveWidth-2, params.height-12, 0xffffff, 0, 2)
+    WindowLine(params.pluginId, params.effectiveWidth-13, params.height-2, params.effectiveWidth-2, params.height-13, 0x696969, 0, 1)
+
+    if GetVariable("login") == nil or GetVariable("login") ~= "1" then
+        local txt = "HP状态栏"
+        local txtlen = WindowTextWidth(params.pluginId,params.font_id,txt)
+        WindowText(params.pluginId, params.font_id, txt, (params.effectiveWidth-txtlen)/2, (params.height/2)-params.line_height, 0, 0, 0xeeeeee, false)
+    else
+        local barTexts = ''
+        local numBars = 0
+        for i, v in pairs(status) do
+            barTexts = barTexts .. v.label
+            numBars = numBars + 1
+        end
+        local bar_width = math.max(1, (params.effectiveWidth-WindowTextWidth(params.pluginId, params.font_id, barTexts)-params.left_margin)/numBars-params.left_margin)
+        
+        local ypos = params.top_margin
+        local xpos = params.left_margin
+        for i, v in pairs(status) do
+            xpos = xpos + WindowText(params.pluginId, params.font_id, v.label, xpos,  ypos, 0, 0, v.color1, false)
+        end
+    end
+end
+
+-- 函数定义 结束
+---------------------------------------------------------------------------------
+
 ]]>
     </script>
 
