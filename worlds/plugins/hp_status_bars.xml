@@ -52,33 +52,59 @@ function Fun_SetTriggerLine(name, line)
     end
 end
 
+--[[ Called as the window is dragged around. This function and those below are
+function ResizeMoveCallback()
+   posx, posy = WindowInfo(win, 17), WindowInfo (win, 18)
+   width = width + posx - startx
+   startx = posx
+   if (width < MIN_WIDTH) then
+      width = MIN_WIDTH
+      startx = windowinfo.window_left+width
+   elseif (windowinfo.window_left+width > GetInfo(281)) then
+      width = GetInfo(281)-windowinfo.window_left
+      startx = GetInfo(281)
+   end 
+
+   if (utils.timer() - lastRefresh > 0.0333) then
+      SetUpHotspotsAndDraw(false)
+      lastRefresh = utils.timer()
+   end
+end
+
+lastRefresh = 0
+
+---- Called after the resize widget is released.
+function ResizeReleaseCallback()
+   SetUpHotspotsAndDraw(false)
+end ]]--
+
 ---- 绘制窗口
 function DrawStatusBar(params)
-	effectiveWidth = math.max(params.min_width, math.min(params.width, GetInfo(281)-params.windowinfo.window_left))
+	params.effectiveWidth = math.max(params.min_width, math.min(params.width, GetInfo(281)-params.windowinfo.window_left))
 	if params.first_time  then
-		check (WindowCreate (winParams.pluginId,
-			windowinfo.window_left, windowinfo.window_top,   -- left, top (auto-positions)
-			effectiveWidth,     -- width
-			height,  -- height
-			windowinfo.window_mode,       -- auto-position: middle right
-			windowinfo.window_flags,  -- flags
-			background_colour) )
+		check (WindowCreate (params.pluginId,
+			params.windowinfo.window_left, params.windowinfo.window_top,   -- left, top (auto-positions)
+			params.effectiveWidth,     -- width
+			params.height,  -- height
+			params.windowinfo.window_mode,       -- auto-position: middle right
+			params.windowinfo.window_flags,  -- flags
+			params.background_colour) )
 		-- Add handler for resizing
-		WindowAddHotspot(win, "resize", effectiveWidth-RESIZE_TAG_SIZE, height-RESIZE_TAG_SIZE, effectiveWidth, height, "MouseOver", "CancelMouseOver", "MouseDown", "CancelMouseDown", "MouseUp", "", 6, 0)
-		WindowDragHandler(win, "resize", "ResizeMoveCallback", "ResizeReleaseCallback", 0)
-		CallPlugin("462b665ecb569efbf261422f", "registerMiniwindow", win)
-		WindowShow (win, true)
+		-- WindowAddHotspot(winParams.pluginId, "resize", effectiveWidth-RESIZE_TAG_SIZE, height-RESIZE_TAG_SIZE, effectiveWidth, height, "MouseOver", "CancelMouseOver", "MouseDown", "CancelMouseDown", "MouseUp", "", 6, 0)
+		--WindowDragHandler(winParams.pluginId, "resize", "ResizeMoveCallback", "ResizeReleaseCallback", 0)
+		--CallPlugin("462b665ecb569efbf261422f", "registerMiniwindow", win)
+		WindowShow (params.pluginId, true)
 	else
 		-- everything has already been made
 		-- just move them back into place
-		WindowResize(win, effectiveWidth, height, background_colour)
-		WindowMoveHotspot(win, "resize", effectiveWidth-RESIZE_TAG_SIZE, height-RESIZE_TAG_SIZE, effectiveWidth, height)
+		WindowResize(params.pluginId, params.effectiveWidth, params.height, params.background_colour)
+		--WindowMoveHotspot(winParams.pluginId, "resize", effectiveWidth-RESIZE_TAG_SIZE, height-RESIZE_TAG_SIZE, effectiveWidth, height)
 	end
 
 	-- Add the drag handler so they can move the window around
-	movewindow.add_drag_handler (win, 0, 0, 0, 0)
+	movewindow.add_drag_handler (params.pluginId, 0, 0, 0, 0)
 
-	DisplayStatsPage()
+	--DisplayStatsPage()
 end
 
 -- 函数定义 结束
@@ -108,7 +134,7 @@ local winParams = {
 }
 
 -- 状态默认数据
-local defaultStauts = {
+local status = {
     exp = { name = "经验:", val = 0, 0x0000ff, 0x00ffff },
     pot = { name = "潜能:", val = 0, 0x0000ff, 0x00ffff },
     neili = { name = "内力:", val = 0, curr_max = 0, 0x0000ff, 0x00ffff },
@@ -161,7 +187,7 @@ end
 --- - 插件初始
 function OnPluginInstall()
     -- 创建窗口
-    WindowCreate(win, 600, 600, 1, 1, 0, 0, winParams.background_colour)
+    WindowCreate(winParams.pluginId, 600, 600, 1, 1, 0, 0, winParams.background_colour)
 
     -- 设置窗体字体
     WindowFont(winParams.pluginId, winParams.font_id, winParams.font_name, winParams.font_size, false, false, false, false)
@@ -171,15 +197,13 @@ function OnPluginInstall()
     -- 统计需要展示的属性文本和数量
     local barTexts = ""
     local numBars = 0
-    for i, v in pairs(showBar) do
-        if (v[2] == true) then
-            barTexts = barTexts .. v[3]
+    for i, v in pairs(status) do
+            barTexts = barTexts .. v.name
             numBars = numBars + 1
-        end
     end
 
-    local font_height = WindowFontInfo(win, font_id, 1) - WindowFontInfo(win, font_id, 4) + 1
-    local font_width = WindowFontInfo(win, font_id, 6)
+    local font_height = WindowFontInfo(winParams.pluginId, winParams.font_id, 1) - WindowFontInfo(winParams.pluginId, winParams.font_id, 4) + 1
+    local font_width = WindowFontInfo(winParams.pluginId, winParams.font_id, 6)
     local line_height = font_height + 1
 
     -- 根据显示的数据长度，设定窗口宽度
