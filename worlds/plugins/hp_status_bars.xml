@@ -21,14 +21,13 @@
 <!--  Script  -->
 <script>
 <![CDATA[
-
 require "movewindow"
 require "gauge"
 
 ---------------------------------------------------------------------------------
 -- 函数定义 开始
 
----- 描述: 自定义AddTrigger函数，同时会加入组
+--- - 描述: 自定义AddTrigger函数，同时会加入组
 function Fun_AddTrigger(name, match, group, script)
     local value = AddTrigger(name, match, "", trigger_flag.KeepEvaluating + trigger_flag.RegularExpression + trigger_flag.Replace + trigger_flag.Temporary, custom_colour.NoChange, 0, "", script)
     SetTriggerOption(name, "group", group)
@@ -40,7 +39,7 @@ function Fun_AddTrigger(name, match, group, script)
     return value
 end
 
----- 描述: 设置触发器行数
+--- - 描述: 设置触发器行数
 function Fun_SetTriggerLine(name, line)
     local value = SetTriggerOption(name, "multi_line", "y")
     if value ~= 0 then
@@ -52,9 +51,9 @@ function Fun_SetTriggerLine(name, line)
     end
 end
 
---[[ Called as the window is dragged around. This function and those below are
+---- Called as the window is dragged around. This function and those below are
 function ResizeMoveCallback()
-   posx, posy = WindowInfo(win, 17), WindowInfo (win, 18)
+   --[[ posx, posy = WindowInfo(win, 17), WindowInfo (win, 18)
    width = width + posx - startx
    startx = posx
    if (width < MIN_WIDTH) then
@@ -69,42 +68,53 @@ function ResizeMoveCallback()
       SetUpHotspotsAndDraw(false)
       lastRefresh = utils.timer()
    end
+   ]]--
 end
 
 lastRefresh = 0
 
 ---- Called after the resize widget is released.
 function ResizeReleaseCallback()
-   SetUpHotspotsAndDraw(false)
-end ]]--
+   --SetUpHotspotsAndDraw(false)
+end
 
----- 绘制窗口
+--- - 绘制窗口
 function DrawStatusBar(params)
-	params.effectiveWidth = math.max(params.min_width, math.min(params.width, GetInfo(281)-params.windowinfo.window_left))
-	if params.first_time  then
-		check (WindowCreate (params.pluginId,
-			params.windowinfo.window_left, params.windowinfo.window_top,   -- left, top (auto-positions)
-			params.effectiveWidth,     -- width
-			params.height,  -- height
-			params.windowinfo.window_mode,       -- auto-position: middle right
-			params.windowinfo.window_flags,  -- flags
-			params.background_colour) )
-		-- Add handler for resizing
-		-- WindowAddHotspot(winParams.pluginId, "resize", effectiveWidth-RESIZE_TAG_SIZE, height-RESIZE_TAG_SIZE, effectiveWidth, height, "MouseOver", "CancelMouseOver", "MouseDown", "CancelMouseDown", "MouseUp", "", 6, 0)
-		--WindowDragHandler(winParams.pluginId, "resize", "ResizeMoveCallback", "ResizeReleaseCallback", 0)
-		--CallPlugin("462b665ecb569efbf261422f", "registerMiniwindow", win)
-		WindowShow (params.pluginId, true)
-	else
-		-- everything has already been made
-		-- just move them back into place
-		WindowResize(params.pluginId, params.effectiveWidth, params.height, params.background_colour)
-		--WindowMoveHotspot(winParams.pluginId, "resize", effectiveWidth-RESIZE_TAG_SIZE, height-RESIZE_TAG_SIZE, effectiveWidth, height)
-	end
+    params.effectiveWidth = math.max(params.min_width, math.min(params.width, GetInfo(281) - params.windowinfo.window_left))
+    if params.first_time then
+        check(WindowCreate(params.pluginId,
+            params.windowinfo.window_left, params.windowinfo.window_top, -- left, top (auto-positions)
+            params.effectiveWidth, -- width
+            params.height, -- height
+            params.windowinfo.window_mode, -- auto-position: middle right
+            params.windowinfo.window_flags, -- flags
+            params.background_colour))
+        -- Add handler for resizing
+        WindowAddHotspot(
+            params.pluginId, "resize", 
+            params.effectiveWidth-params.resize_tag_size, 
+            params.height-params.resize_tag_size, 
+            params.effectiveWidth, 
+            params.height, 
+            "MouseOver", "CancelMouseOver", "MouseDown", "CancelMouseDown", "MouseUp", "", 6, 0)
+        WindowDragHandler(params.pluginId, "resize", "ResizeMoveCallback", "ResizeReleaseCallback", 0)
+        CallPlugin("462b665ecb569efbf261422f", "registerMiniwindow", params.pluginId)
+        WindowShow(params.pluginId, true)
+    else
+        -- everything has already been made
+        -- just move them back into place
+        WindowResize(params.pluginId, params.effectiveWidth, params.height, params.background_colour)
+        --WindowMoveHotspot(winParams.pluginId, "resize", effectiveWidth-RESIZE_TAG_SIZE, height-RESIZE_TAG_SIZE, effectiveWidth, height)
+    end
 
-	-- Add the drag handler so they can move the window around
-	movewindow.add_drag_handler (params.pluginId, 0, 0, 0, 0)
+    -- Add the drag handler so they can move the window around
+    movewindow.add_drag_handler(params.pluginId, 0, 0, 0, 0)
 
-	--DisplayStatsPage()
+    DisplayStatsInfo(params)
+end
+
+function DisplayStatsInfo(params)
+    WindowRectOp(params.pluginId, 2, 2, 2, -2, -2, params.background_colour)
 end
 
 -- 函数定义 结束
@@ -122,7 +132,7 @@ local winParams = {
     height = 0,
     x = 0,
     y = 552,
-    resize_tag = 10,
+    resize_tag_size = 10,
     min_width = 40,
     left_margin = 10,
     top_margin = 5,
@@ -149,7 +159,7 @@ local status = {
 winParams.pluginId = GetPluginID()
 
 
--- 触发器列表
+--[[ 触发器列表
 local triggerList = {
     {
         -- hpbrief命令
@@ -176,6 +186,7 @@ for i = 1, #triggerList do
         Fun_SetTriggerLine("trigger_hp_" .. triggerList[i].funame, triggerList[i].line)
     end
 end
+]] --
 
 
 -- 程序初始化 结束
@@ -192,14 +203,22 @@ function OnPluginInstall()
     -- 设置窗体字体
     WindowFont(winParams.pluginId, winParams.font_id, winParams.font_name, winParams.font_size, false, false, false, false)
     -- 设置窗体拖动处理器
-    winParams.windowinfo = movewindow.install(winParams.pluginId, miniwin.pos_top_right, miniwin.create_absolute_location, false, nil, { mouseup = MouseUp, mousedown = LeftClickOnly, dragmove = LeftClickOnly, dragrelease = LeftClickOnly }, { x = default_x, y = default_y })
+    winParams.windowinfo = movewindow.install(
+        winParams.pluginId, 
+        miniwin.pos_top_right, 
+        miniwin.create_absolute_location, 
+        false, 
+        nil, 
+        { mouseup = MouseUp, mousedown = LeftClickOnly, dragmove = LeftClickOnly, dragrelease = LeftClickOnly }, 
+        { x = winParams.x, y = winParams.y }
+        )
 
     -- 统计需要展示的属性文本和数量
     local barTexts = ""
     local numBars = 0
     for i, v in pairs(status) do
-            barTexts = barTexts .. v.name
-            numBars = numBars + 1
+        barTexts = barTexts .. v.name
+        numBars = numBars + 1
     end
 
     local font_height = WindowFontInfo(winParams.pluginId, winParams.font_id, 1) - WindowFontInfo(winParams.pluginId, winParams.font_id, 4) + 1
@@ -208,7 +227,7 @@ function OnPluginInstall()
 
     -- 根据显示的数据长度，设定窗口宽度
     local curr_width = math.max(40, WindowTextWidth(winParams.pluginId, winParams.font_id, barTexts) + (winParams.left_margin * (numBars + 2)))
-    winParams.height = winParams.top_margin * 2 + line_height
+    winParams.height = (winParams.top_margin * 2 + line_height)*2
     winParams.width = math.max(winParams.width, winParams.min_width)
 
     -- 绘制窗口
@@ -217,7 +236,6 @@ end
 
 -- 插件需要响应的事件 结束
 ---------------------------------------------------------------------------------
-
 ]]>
 </script>
 
