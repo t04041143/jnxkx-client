@@ -14,6 +14,19 @@
     </description>
 </plugin>
 
+<triggers> 
+ <trigger
+   name="login"
+   enabled="y"
+   match="^(&gt;)*( )*目前权限："
+   regexp="y"
+   script="onLogin"
+   sequence="100"
+   group="hp"
+   >
+  </trigger>
+</triggers>
+
 
 <!--  Get our standard constants -->
 <include name="constants.lua"/>
@@ -27,28 +40,8 @@ require "gauge"
 ---------------------------------------------------------------------------------
 -- 函数定义 开始
 
---- - 描述: 自定义AddTrigger函数，同时会加入组
-function Fun_AddTrigger(name, match, group, script)
-    local value = AddTrigger(name, match, "", trigger_flag.KeepEvaluating + trigger_flag.RegularExpression + trigger_flag.Replace + trigger_flag.Temporary, custom_colour.NoChange, 0, "", script)
-    SetTriggerOption(name, "group", group)
-
-    if value ~= 0 then
-        ColourNote("red", "black", name .. " Fun_AddTrigger false")
-    end
-
-    return value
-end
-
---- - 描述: 设置触发器行数
-function Fun_SetTriggerLine(name, line)
-    local value = SetTriggerOption(name, "multi_line", "y")
-    if value ~= 0 then
-        ColourNote("red", "black", name .. " Fun_SetTriggerLine false")
-    end
-    value = SetTriggerOption(name, "lines_to_match", line)
-    if value ~= 0 then
-        ColourNote("red", "black", name .. " Fun_SetTriggerLine false")
-    end
+function onLogin()
+    Send("hpbrief")
 end
 
 ---- Called as the window is dragged around. This function and those below are
@@ -78,7 +71,7 @@ function ResizeReleaseCallback()
    --SetUpHotspotsAndDraw(false)
 end
 
---- - 绘制窗口
+---- 绘制窗口
 function DrawStatusBar(params)
     params.effectiveWidth = math.max(params.min_width, math.min(params.width, GetInfo(281) - params.windowinfo.window_left))
     if params.first_time then
@@ -113,8 +106,9 @@ function DrawStatusBar(params)
     DisplayStatsInfo(params)
 end
 
--- 展示HP中状态信息
+---- 展示HP中状态信息
 function DisplayStatsInfo(params)
+    -- 绘制背景
     WindowRectOp(params.pluginId, 2, 2, 2, -2, -2, params.background_colour)
    
    -- 绘制窗口边框.
@@ -130,6 +124,8 @@ function DisplayStatsInfo(params)
    WindowLine(params.pluginId, params.effectiveWidth-10, params.height-2, params.effectiveWidth-2, params.height-10, 0x696969, 0, 1)
    WindowLine(params.pluginId, params.effectiveWidth-12, params.height-2, params.effectiveWidth-2, params.height-12, 0xffffff, 0, 2)
    WindowLine(params.pluginId, params.effectiveWidth-13, params.height-2, params.effectiveWidth-2, params.height-13, 0x696969, 0, 1)
+
+
 end
 
 -- 函数定义 结束
@@ -246,7 +242,10 @@ function OnPluginInstall()
     winParams.width = math.max(winParams.width, winParams.min_width)
 
     -- 绘制窗口
-    DrawStatusBar(winParams);
+    DrawStatusBar(winParams)
+
+    -- 保存当前状态
+    OnPluginSaveState()
 end
 
 ---- 保存窗口状态
