@@ -113,13 +113,15 @@ function DrawStatusBar(params)
     DisplayStatsInfo(params)
 end
 
+-- 展示HP中状态信息
 function DisplayStatsInfo(params)
     WindowRectOp(params.pluginId, 2, 2, 2, -2, -2, params.background_colour)
-       -- draw edge frame.
+   
+   -- 绘制窗口边框.
    WindowRectOp (params.pluginId, 1, 0, 0, 0, 0, params.border_color, 15)
    WindowRectOp (params.pluginId, 1, 1, 1, -1, -1, 0x777777, 15)
 
-   -- draw the resize widget bottom right corner.
+   -- 绘制调整大小的按钮
    WindowLine(params.pluginId, params.effectiveWidth-3, params.height-2, params.effectiveWidth-2, params.height-3, 0xffffff, 0, 2)
    WindowLine(params.pluginId, params.effectiveWidth-4, params.height-2, params.effectiveWidth-2, params.height-4, 0x696969, 0, 1)
    WindowLine(params.pluginId, params.effectiveWidth-6, params.height-2, params.effectiveWidth-2, params.height-6, 0xffffff, 0, 2)
@@ -208,7 +210,7 @@ end
 ---------------------------------------------------------------------------------
 -- 插件需要响应的事件 开始
 
---- - 插件初始
+---- 插件第一次安装
 function OnPluginInstall()
     -- 创建窗口
     WindowCreate(winParams.pluginId, 600, 600, 1, 1, 0, 0, winParams.background_colour)
@@ -245,6 +247,23 @@ function OnPluginInstall()
 
     -- 绘制窗口
     DrawStatusBar(winParams);
+end
+
+---- 保存窗口状态
+function OnPluginSaveState ()
+    movewindow.save_state (winParams.pluginId)
+end
+
+---- 插件启用
+function OnPluginEnable ()
+   WindowShow (winParams.pluginId, true)
+   OnPluginSaveState()
+end
+
+---- 插件禁用
+function OnPluginDisable ()
+   OnPluginSaveState()
+   WindowShow(winParams.pluginId, false )
 end
 
 -- 插件需要响应的事件 结束

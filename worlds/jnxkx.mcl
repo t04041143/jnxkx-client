@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE muclient>
-<!-- Saved on 2016Äê °ËÔÂ 14ÈÕ ÐÇÆÚÈÕ, ÏÂÎç 2:55 -->
+<!-- Saved on 2016Äê °ËÔÂ 14ÈÕ ÐÇÆÚÈÕ, ÏÂÎç 3:22 -->
 <!-- MuClient version 4.94 -->
 <!-- Written by Nick Gammon -->
 <!-- Home Page: http://www.mushclient.com/ -->
@@ -8,7 +8,7 @@
 <world
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-14 14:55:25"
+   date_saved="2016-08-14 15:22:00"
 
    auto_say_override_prefix="-"
    auto_say_string="say "
@@ -114,7 +114,7 @@
 <triggers
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-14 14:55:25"
+   date_saved="2016-08-14 15:22:00"
   >
 </triggers>
 
@@ -123,7 +123,7 @@
 <aliases
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-14 14:55:25"
+   date_saved="2016-08-14 15:22:00"
   >
 </aliases>
 
@@ -132,7 +132,7 @@
 <timers
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-14 14:55:25"
+   date_saved="2016-08-14 15:22:00"
   >
 </timers>
 
@@ -141,7 +141,7 @@
 <macros
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-14 14:55:25"
+   date_saved="2016-08-14 15:22:00"
   >
 
   <macro name="up" type="send_now" >
@@ -235,7 +235,7 @@
 <variables
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-14 14:55:25"
+   date_saved="2016-08-14 15:22:00"
   >
 </variables>
 
@@ -244,7 +244,7 @@
 <colours
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-14 14:55:25"
+   date_saved="2016-08-14 15:22:00"
   >
 
 <ansi>
@@ -301,7 +301,7 @@
 <keypad
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-14 14:55:25"
+   date_saved="2016-08-14 15:22:00"
   >
 
   <key name="0" >
@@ -415,7 +415,7 @@
 <printing
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-14 14:55:25"
+   date_saved="2016-08-14 15:22:00"
   >
 
 <ansi>
@@ -440,9 +440,9 @@
 </printing>
 
 <!-- plugins -->
-<include name="main_window.xml" plugin="y" />
 <include name="miniwindow_z_order_monitor.xml" plugin="y" />
 <include name="fullme_code.xml" plugin="y" />
 <include name="repaint_buffer.xml" plugin="y" />
+<include name="main_window.xml" plugin="y" />
 <include name="hp_status_bars.xml" plugin="y" />
 </muclient>
