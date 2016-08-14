@@ -14,6 +14,14 @@
     </description>
 </plugin>
 
+<timers>
+<timer name="hpbrief" enabled="n" second="3.00" offset_second="0.00" send_to="12">
+<send>Send("hpbrief")</send>
+</timer>
+<timer name="heartbeat" enabled="y" second="3.00" offset_second="0.00" send_to="12" script="onHeartbeat" active_closed="y">
+</timer>
+</timers>
+
 <triggers> 
  <trigger
    name="login"
@@ -21,8 +29,15 @@
    match="^(&gt;)*( )*目前权限："
    regexp="y"
    script="onLogin"
+   sequence="100"   >
+  </trigger>
+   <trigger
+   name="logout"
+   enabled="y"
+   match="^(&gt;)*( )*--- 断线时间"
+   regexp="y"
+   script="onLogout"
    sequence="100"
-   group="hp"
    >
   </trigger>
 </triggers>
@@ -41,8 +56,27 @@ require "gauge"
 -- 函数定义 开始
 
 function onLogin()
+    SetVariable("login","1")
     Send("hpbrief")
 end
+
+function onLogout()
+end
+
+function onHeartbeat()
+    if IsConnected() then
+        if GetVariable("login") ~= nil and (not GetTimerInfo("hpbrief", 6)) then
+            EnableTimer("hpbrief",true)
+        end        
+    else
+        if GetTimerInfo("hpbrief", 6) then
+            EnableTimer("hpbrief",false)
+        end
+        if GetVariable("login") ~= nil then
+            DeleteVariable("login")
+        end
+    end
+    end
 
 ---- Called as the window is dragged around. This function and those below are
 function ResizeMoveCallback()
