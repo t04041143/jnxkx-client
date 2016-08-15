@@ -25,21 +25,21 @@
 
     <triggers>
         <trigger name="login"
-                enabled="y"
-                match="^(&gt;)*( )*目前权限："
-                regexp="y"
-                script="onLogin"
-                sequence="100">
+                 enabled="y"
+                 match="^(&gt;)*( )*目前权限："
+                 regexp="y"
+                 script="onLogin"
+                 sequence="100">
         </trigger>
         <trigger name="hpbrief"
-                enabled="y"
-                match="^[> ]*#(.+),(.+),(\d+),(\d+),(\d+),(\d+)\n#(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)"
-                regexp="y"
-                multi_line="y"
-                lines_to_match="2"
-                keep_evaluating="y"
-                script="onHpbrief"
-                sequence="101">
+                 enabled="y"
+                 match="^[> ]*#(.+),(.+),(\d+),(\d+),(\d+),(\d+)\n#(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)"
+                 regexp="y"
+                 multi_line="y"
+                 lines_to_match="2"
+                 omit_from_output="y"
+                 script="onHpbrief"
+                 sequence="101">
         </trigger>
     </triggers>
 
@@ -79,14 +79,14 @@ local winParams = {
 
 -- 状态默认数据
 local status = {
-    exp = { label = "经验:", val = 0, color1=0x0000ff, color2=0x00ffff },
-    pot = { label = "潜能:", val = 0, color1=0x0000ff, color2=0x00ffff },
-    neili = { label = "内力:", val = 0, max = 1, color1=0x0000ff, color2=0x00ffff },
-    jingli = { label = "精力:", val = 0, max = 1, color1=0x0000ff, color2=0x00ffff },
-    qi = { label = "气血:", val = 0, curr_max = 1, max = 1, color1=0x00ff00, color2=0x004400 },
-    jing = { label = "精神:", val = 0, curr_max = 1, max = 1, color1=0xff5500, color2=0x442200 },
-    food = { label = "食物:", val = 0, max = 1, color1=0x00ffff, color2=0x004444 },
-    water = { label = "饮水:", val = 0, max = 1, color1=0xffffff, color2=0x444444 }
+    exp = { label = "经验: ", val = 0, color1 = 0x00ffff, color2 = 0x00ffff, index =1 },
+    pot = { label = "潜能: ", val = 0, color1 = 0xffffff, color2 = 0x00ffff, index =2},
+    neili = { label = "内力 :", val = 0, max = 1, color1 = 0x0000ff, color2 = 0x00ffff , index =3},
+    jingli = { label = "精力 :", val = 0, max = 1, color1 = 0x0000ff, color2 = 0x00ffff , index =4},
+    qi = { label = "气血: ", val = 0, curr_max = 1, max = 1, color1 = 0x00ff00, color2 = 0x004400 , index =5},
+    jing = { label = "精神: ", val = 0, curr_max = 1, max = 1, color1 = 0xff5500, color2 = 0x442200 , index =6},
+    --food = { label = "食物:", val = 0, max = 1, color1 = 0x00ffff, color2 = 0x004444 , index =7},
+    --water = { label = "饮水:", val = 0, max = 1, color1 = 0xffffff, color2 = 0x444444 , index =8}
 }
 
 -- 获得当前插件的唯一ID（24字符）
@@ -99,7 +99,7 @@ winParams.pluginId = GetPluginID()
 ---------------------------------------------------------------------------------
 -- 插件需要响应的事件 开始
 
----- 插件第一次安装
+--- - 插件第一次安装
 function OnPluginInstall()
     -- 创建窗口
     WindowCreate(winParams.pluginId, 600, 600, 1, 1, 0, 0, winParams.background_colour)
@@ -107,15 +107,13 @@ function OnPluginInstall()
     -- 设置窗体字体
     WindowFont(winParams.pluginId, winParams.font_id, winParams.font_name, winParams.font_size, false, false, false, false)
     -- 设置窗体拖动处理器
-    winParams.windowinfo = movewindow.install(
-        winParams.pluginId, 
-        miniwin.pos_top_right, 
-        miniwin.create_absolute_location, 
-        false, 
-        nil, 
-        { mouseup = MouseUp, mousedown = LeftClickOnly, dragmove = LeftClickOnly, dragrelease = LeftClickOnly }, 
-        { x = winParams.x, y = winParams.y }
-        )
+    winParams.windowinfo = movewindow.install(winParams.pluginId,
+        miniwin.pos_top_right,
+        miniwin.create_absolute_location,
+        false,
+        nil,
+        { mouseup = MouseUp, mousedown = LeftClickOnly, dragmove = LeftClickOnly, dragrelease = LeftClickOnly },
+        { x = winParams.x, y = winParams.y })
 
     -- 统计需要展示的属性文本和数量
     local barTexts = ""
@@ -131,7 +129,7 @@ function OnPluginInstall()
 
     -- 根据显示的数据长度，设定窗口宽度
     local curr_width = math.max(40, WindowTextWidth(winParams.pluginId, winParams.font_id, barTexts) + (winParams.left_margin * (numBars + 2)))
-    winParams.height = (winParams.top_margin * 2 + winParams.line_height)*2
+    winParams.height = (winParams.top_margin * 2 + winParams.line_height) * 2
     winParams.width = math.max(winParams.width, winParams.min_width)
 
     -- 绘制窗口
@@ -141,21 +139,21 @@ function OnPluginInstall()
     OnPluginSaveState()
 end
 
----- 保存窗口状态
-function OnPluginSaveState ()
-    movewindow.save_state (winParams.pluginId)
+--- - 保存窗口状态
+function OnPluginSaveState()
+    movewindow.save_state(winParams.pluginId)
 end
 
----- 插件启用
-function OnPluginEnable ()
-   WindowShow (winParams.pluginId, true)
-   OnPluginSaveState()
+--- - 插件启用
+function OnPluginEnable()
+    WindowShow(winParams.pluginId, true)
+    OnPluginSaveState()
 end
 
----- 插件禁用
-function OnPluginDisable ()
-   OnPluginSaveState()
-   WindowShow(winParams.pluginId, false )
+--- - 插件禁用
+function OnPluginDisable()
+    OnPluginSaveState()
+    WindowShow(winParams.pluginId, false)
 end
 
 -- 插件需要响应的事件 结束
@@ -166,34 +164,34 @@ end
 
 -- 通用函数
 string.lpad = function(str, len, char)
-   str = tostring(str)
-   if char == nil then char = ' ' end
-   return string.rep(char, len - #str) .. str
+    str = tostring(str)
+    if char == nil then char = ' ' end
+    return string.rep(char, len - #str) .. str
 end
 
 string.rpad = function(str, len, char)
-   str = tostring(str)
-   if char == nil then char = ' ' end
-   return str .. string.rep(char, len - #str)
+    str = tostring(str)
+    if char == nil then char = ' ' end
+    return str .. string.rep(char, len - #str)
 end
 
----- 用户登录时的处理
+--- - 用户登录时的处理
 function onLogin()
-    SetVariable("login","1")
+    SetVariable("login", "1")
     SendNoEcho("hpbrief")
 end
 
----- 心跳检测
+--- - 心跳检测
 function onHeartbeat()
     if IsConnected() then
         -- 如果用户登录，启动刷新HP的定时器
         if GetVariable("login") ~= nil and (not GetTimerInfo("hpbrief", 6)) then
-            EnableTimer("hpbrief",true)
+            EnableTimer("hpbrief", true)
         end
     else
         -- 如果断开连接，那么停止定时器
         if GetTimerInfo("hpbrief", 6) then
-            EnableTimer("hpbrief",false)
+            EnableTimer("hpbrief", false)
         end
         -- 如果登录标志存在，那么删除该标志
         if GetVariable("login") ~= nil then
@@ -202,50 +200,50 @@ function onHeartbeat()
     end
 end
 
-function onHpbrief(n,l,w)
-    status.exp.val             = w[1]
-    status.pot.val              = tonumber(w[2])
-    status.neili.max     = tonumber(w[3])
-    status.neili.val            = tonumber(w[4])
-    status.jingli.max    = tonumber(w[5])
-    status.jingli.val           = tonumber(w[6])
-    status.qi.max           = tonumber(w[7])
-    status.qi.curr_max         = tonumber(w[8])
-    status.qi.val               = tonumber(w[9])
-    status.jing.max         = tonumber(w[10])
-    status.jing.curr_max      = tonumber(w[11])
-    status.jing.val             = tonumber(w[12])
+function onHpbrief(n, l, w)
+    status.exp.val = w[1]
+    status.pot.val = tonumber(w[2])
+    status.neili.max = tonumber(w[3])
+    status.neili.val = tonumber(w[4])
+    status.jingli.max = tonumber(w[5])
+    status.jingli.val = tonumber(w[6])
+    status.qi.max = tonumber(w[7])
+    status.qi.curr_max = tonumber(w[8])
+    status.qi.val = tonumber(w[9])
+    status.jing.max = tonumber(w[10])
+    status.jing.curr_max = tonumber(w[11])
+    status.jing.val = tonumber(w[12])
     DisplayStatsInfo(winParams)
 end
 
----- Called as the window is dragged around. This function and those below are
+--- - Called as the window is dragged around. This function and those below are
 function ResizeMoveCallback()
-   --[[ posx, posy = WindowInfo(win, 17), WindowInfo (win, 18)
-   width = width + posx - startx
-   startx = posx
-   if (width < MIN_WIDTH) then
-      width = MIN_WIDTH
-      startx = windowinfo.window_left+width
-   elseif (windowinfo.window_left+width > GetInfo(281)) then
-      width = GetInfo(281)-windowinfo.window_left
-      startx = GetInfo(281)
-   end 
+    --[[ posx, posy = WindowInfo(win, 17), WindowInfo (win, 18)
+    width = width + posx - startx
+    startx = posx
+    if (width < MIN_WIDTH) then
+       width = MIN_WIDTH
+       startx = windowinfo.window_left+width
+    elseif (windowinfo.window_left+width > GetInfo(281)) then
+       width = GetInfo(281)-windowinfo.window_left
+       startx = GetInfo(281)
+    end
 
-   if (utils.timer() - lastRefresh > 0.0333) then
-      SetUpHotspotsAndDraw(false)
-      lastRefresh = utils.timer()
-   end
-   ]]--
+    if (utils.timer() - lastRefresh > 0.0333) then
+       SetUpHotspotsAndDraw(false)
+       lastRefresh = utils.timer()
+    end
+    ]] --
 end
 
 lastRefresh = 0
 
----- Called after the resize widget is released.
+--- - Called after the resize widget is released.
 function ResizeReleaseCallback()
-   --SetUpHotspotsAndDraw(false)
+    --SetUpHotspotsAndDraw(false)
 end
 
----- 绘制窗口
+--- - 绘制窗口
 function DrawStatusBar(params)
     params.effectiveWidth = math.max(params.min_width, math.min(params.width, GetInfo(281) - params.windowinfo.window_left))
     if params.first_time then
@@ -258,12 +256,11 @@ function DrawStatusBar(params)
             params.windowinfo.window_flags, -- flags
             params.background_colour))
         -- 增加调节大小的热点
-        WindowAddHotspot(
-            params.pluginId, "resize", 
-            params.effectiveWidth-params.resize_tag_size, 
-            params.height-params.resize_tag_size, 
-            params.effectiveWidth, 
-            params.height, 
+        WindowAddHotspot(params.pluginId, "resize",
+            params.effectiveWidth - params.resize_tag_size,
+            params.height - params.resize_tag_size,
+            params.effectiveWidth,
+            params.height,
             "MouseOver", "CancelMouseOver", "MouseDown", "CancelMouseDown", "MouseUp", "", 6, 0)
         WindowDragHandler(params.pluginId, "resize", "ResizeMoveCallback", "ResizeReleaseCallback", 0)
         CallPlugin("462b665ecb569efbf261422f", "registerMiniwindow", params.pluginId)
@@ -282,71 +279,89 @@ function DrawStatusBar(params)
     DisplayStatsInfo(params)
 end
 
----- 展示HP中状态信息
+--- - 展示HP中状态信息
 function DisplayStatsInfo(params)
     -- 绘制背景
     WindowRectOp(params.pluginId, 2, 2, 2, -2, -2, params.background_colour)
-   
+
     -- 绘制窗口边框.
-    WindowRectOp (params.pluginId, 1, 0, 0, 0, 0, params.border_color, 15)
-    WindowRectOp (params.pluginId, 1, 1, 1, -1, -1, 0x777777, 15)
+    WindowRectOp(params.pluginId, 1, 0, 0, 0, 0, params.border_color, 15)
+    WindowRectOp(params.pluginId, 1, 1, 1, -1, -1, 0x777777, 15)
 
     -- 绘制调整大小的按钮
-    WindowLine(params.pluginId, params.effectiveWidth-3, params.height-2, params.effectiveWidth-2, params.height-3, 0xffffff, 0, 2)
-    WindowLine(params.pluginId, params.effectiveWidth-4, params.height-2, params.effectiveWidth-2, params.height-4, 0x696969, 0, 1)
-    WindowLine(params.pluginId, params.effectiveWidth-6, params.height-2, params.effectiveWidth-2, params.height-6, 0xffffff, 0, 2)
-    WindowLine(params.pluginId, params.effectiveWidth-7, params.height-2, params.effectiveWidth-2, params.height-7, 0x696969, 0, 1)
-    WindowLine(params.pluginId, params.effectiveWidth-9, params.height-2, params.effectiveWidth-2, params.height-9, 0xffffff, 0, 2)
-    WindowLine(params.pluginId, params.effectiveWidth-10, params.height-2, params.effectiveWidth-2, params.height-10, 0x696969, 0, 1)
-    WindowLine(params.pluginId, params.effectiveWidth-12, params.height-2, params.effectiveWidth-2, params.height-12, 0xffffff, 0, 2)
-    WindowLine(params.pluginId, params.effectiveWidth-13, params.height-2, params.effectiveWidth-2, params.height-13, 0x696969, 0, 1)
+    WindowLine(params.pluginId, params.effectiveWidth - 3, params.height - 2, params.effectiveWidth - 2, params.height - 3, 0xffffff, 0, 2)
+    WindowLine(params.pluginId, params.effectiveWidth - 4, params.height - 2, params.effectiveWidth - 2, params.height - 4, 0x696969, 0, 1)
+    WindowLine(params.pluginId, params.effectiveWidth - 6, params.height - 2, params.effectiveWidth - 2, params.height - 6, 0xffffff, 0, 2)
+    WindowLine(params.pluginId, params.effectiveWidth - 7, params.height - 2, params.effectiveWidth - 2, params.height - 7, 0x696969, 0, 1)
+    WindowLine(params.pluginId, params.effectiveWidth - 9, params.height - 2, params.effectiveWidth - 2, params.height - 9, 0xffffff, 0, 2)
+    WindowLine(params.pluginId, params.effectiveWidth - 10, params.height - 2, params.effectiveWidth - 2, params.height - 10, 0x696969, 0, 1)
+    WindowLine(params.pluginId, params.effectiveWidth - 12, params.height - 2, params.effectiveWidth - 2, params.height - 12, 0xffffff, 0, 2)
+    WindowLine(params.pluginId, params.effectiveWidth - 13, params.height - 2, params.effectiveWidth - 2, params.height - 13, 0x696969, 0, 1)
 
     if GetVariable("login") == nil or GetVariable("login") ~= "1" then
         local txt = "HP状态栏"
-        local txtlen = WindowTextWidth(params.pluginId,params.font_id,txt)
-        WindowText(params.pluginId, params.font_id, txt, (params.effectiveWidth-txtlen)/2, (params.height/2)-params.line_height, 0, 0, 0xeeeeee, false)
+        local txtlen = WindowTextWidth(params.pluginId, params.font_id, txt)
+        WindowText(params.pluginId, params.font_id, txt, (params.effectiveWidth - txtlen) / 2, (params.height / 2) - params.line_height, 0, 0, 0xeeeeee, false)
     else
-        -- 计算属性条的宽度
-        local barTexts = ''
-        local numBars = 0
-        for i, v in pairs(status) do
-            barTexts = barTexts .. v.label
-            numBars = numBars + 1
-        end
-        local bar_width = math.max(1, (params.effectiveWidth-WindowTextWidth(params.pluginId, params.font_id, barTexts)-params.left_margin)/numBars-params.left_margin)
-
+        -- 排序状态值
+        sortStatus = {}
+         for k, v in pairs(status) do
+            sortStatus[#sortStatus + 1] = v
+         end
+         table.sort(sortStatus,function(a,b)
+            return a.index < b.index
+            end)
         -- 开始绘制属性
-        local label_width = WindowTextWidth(params.pluginId, params.font_id,"WWWWWW:")
+        --local label_width = WindowTextWidth(params.pluginId, params.font_id, "WWWWWW:")
         local ypos = params.top_margin
         local xpos = params.left_margin
-        for i, v in pairs(status) do
-            -- 标题
-            xpos = xpos + WindowText(params.pluginId, params.font_id, v.label, xpos,  ypos, 0, 0, v.color1, false)
+        for i, v in ipairs(sortStatus) do
+            --xpos = xpos + WindowText(params.pluginId, params.font_id, v.label, xpos, ypos, 0, 0, v.color1, false)
             -- 当前数值
             txt = string.lpad(v.val, 3, ' ')
             -- 拼接当前上限
             if v.curr_max then
-                txt = txt .."/"..v.curr_max
+                txt = txt .. "/" .. v.curr_max
             end
             -- 拼接最大上限
             if v.max then
-                txt = txt .."/"..string.rpad(v.max,3,' ')
+                txt = txt .. "/" .. string.rpad(v.max, 3, ' ')
             end
-            txt = string.rpad(txt,3,' ')
+            txt = string.rpad(txt, 3, ' ')
             -- 拼接百分比
+            local barMax = v.max
             if v.curr_max then
-                -- 如果存在当前上限，那么百分比显示是否达到最大上限
-                txt = txt.." ("..string.lpad(string.format('%u',100* v.curr_max/v.max).."%",4,' ')..")"
+                -- 如果存在当前上限，那么百分比显示是否达到最大上限，比如气血
+                txt = txt .. " (" .. string.lpad(string.format('%u', 100 * v.curr_max / v.max) .. "%", 4, ' ') .. ")"
+                barMax = v.curr_max
             elseif v.max then
-                -- 如果不存在当前上限，那么百分比显示当前值是否达到最大上限
-                txt = txt.." ("..string.lpad(string.format('%u',100* v.val/v.max).."%",4,' ')..")"
+                -- 如果不存在当前上限，那么百分比显示当前值是否达到最大上限，比如内力
+                txt = txt .. " (" .. string.lpad(string.format('%u', 100 * v.val / v.max) .. "%", 4, ' ') .. ")"
+            else
+                -- 如果只有当前值，比如经验，潜能
+                txt = txt .. v.val
             end
 
+            -- 整合整个属性的文字
+            local txt = v.label .. " [" .. txt .. "] "
+
             -- 展示文本
-            txtlen = WindowTextWidth(params.pluginId, params.font_id,txt)
-            outlined_text(params.pluginId, params.font_id, txt, xpos+label_width+((bar_width-txtlen)/2), ypos, 0, 0, 0xeeeeee)
+            txtlen = WindowTextWidth(params.pluginId, params.font_id, txt)
+            --outlined_text(params.pluginId, params.font_id, txt, xpos + label_width + ((bar_width - txtlen) / 2), ypos, 0, 0, 0xeeeeee)
+            --[[gauge(params.pluginId, v.name, v.val, barMax,
+                xpos + label_width, ypos, bar_width, params.line_height, -- 窗口内的位置
+                v.color2, 0x000000, -- 当前填充颜色，未填充部分颜色
+                5, 0x000000, --
+                0x222222, nil, --边框颜色，阴影颜色
+                true) -- 不使用渐进填充
+            ]]--
+
+            -- 渲染属性文字
+            WindowText(params.pluginId, params.font_id, txt, xpos, ypos, 0, 0, v.color1, false)
+            -- 计算下个bar的偏移
+            xpos = xpos+ WindowTextWidth(params.pluginId, params.font_id, txt) + params.left_margin
         end
-     end
+    end
 end
 
 -- 函数定义 结束
