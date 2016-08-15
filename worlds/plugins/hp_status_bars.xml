@@ -51,7 +51,7 @@
     <script>
         <![CDATA[
 require "movewindow"
-require "gauge"
+require "serialize"
 
 ---------------------------------------------------------------------------------
 -- 程序初始化 开始
@@ -66,6 +66,8 @@ local winParams = {
     line_height = 0,
     x = 0,
     y = 552,
+    startx     = 0,
+    starty     = 0,
     resize_tag_size = 10,
     min_width = 40,
     left_margin = 10,
@@ -75,6 +77,7 @@ local winParams = {
     font_size = "8",
     windowinfo = null,
     pluginId,
+    lastRefresh = 0,
 }
 
 -- 状态默认数据
@@ -101,6 +104,13 @@ winParams.pluginId = GetPluginID()
 
 --- - 插件第一次安装
 function OnPluginInstall()
+    -- 从上次保存的数据中恢复窗口参数
+    local paramsString = GetVariable("winParams")
+
+    if paramsString ~= nil and not paramsString.trim().equals("") then
+        winParams = loadstring(paramsString)()
+    end
+
     -- 创建窗口
     WindowCreate(winParams.pluginId, 600, 600, 1, 1, 0, 0, winParams.background_colour)
 
@@ -161,12 +171,14 @@ end
 --- - 保存窗口状态
 function OnPluginSaveState()
     movewindow.save_state(winParams.pluginId)
+    -- 序列化winParams
+    --Note(2222)
+    --SetVariable("winParams", serialize.save("winParams",winParams))
 end
 
 --- - 插件启用
 function OnPluginEnable()
-    WindowShow(winParams.pluginId, true)
-    OnPluginSaveState()
+    OnPluginInstall()
 end
 
 --- - 插件禁用
@@ -181,7 +193,7 @@ end
 ---------------------------------------------------------------------------------
 -- 函数定义 开始
 
--- 通用函数
+---- 通用函数
 string.lpad = function(str, len, char)
     str = tostring(str)
     if char == nil then char = ' ' end
@@ -194,13 +206,13 @@ string.rpad = function(str, len, char)
     return str .. string.rep(char, len - #str)
 end
 
---- - 用户登录时的处理
+---- 用户登录时的处理
 function onLogin()
     SetVariable("login", "1")
     SendNoEcho("hpbrief")
 end
 
---- - 心跳检测
+---- 心跳检测
 function onHeartbeat()
     if IsConnected() then
         -- 如果用户登录，启动刷新HP的定时器
@@ -219,6 +231,7 @@ function onHeartbeat()
     end
 end
 
+---- HP状态解析
 function onHpbrief(n, l, w)
     status.exp.val = w[1]
     status.pot.val = tonumber(w[2])
@@ -235,34 +248,25 @@ function onHpbrief(n, l, w)
     DisplayStatsInfo(winParams)
 end
 
---- - Called as the window is dragged around. This function and those below are
+---- 当窗口的大小被改变
 function ResizeMoveCallback()
-    --[[ posx, posy = WindowInfo(win, 17), WindowInfo (win, 18)
-    width = width + posx - startx
-    startx = posx
-    if (width < MIN_WIDTH) then
-       width = MIN_WIDTH
-       startx = windowinfo.window_left+width
-    elseif (windowinfo.window_left+width > GetInfo(281)) then
-       width = GetInfo(281)-windowinfo.window_left
-       startx = GetInfo(281)
-    end
+    local posx, posy = WindowInfo(winParams.pluginId, 17), WindowInfo (winParams.pluginId, 18)
 
-    if (utils.timer() - lastRefresh > 0.0333) then
-       SetUpHotspotsAndDraw(false)
-       lastRefresh = utils.timer()
+    winParams.width = winParams.width + posx - winParams.startx
+    winParams.startx = posx
+    -- 
+    if (winParams.windowinfo.window_left+winParams.width > GetInfo(281)) then
+       winParams.width = GetInfo(281)-winParams.windowinfo.window_left
+       winParams.startx = GetInfo(281)
     end
-    ]] --
 end
 
-lastRefresh = 0
-
---- - Called after the resize widget is released.
+---- 当resize按钮松开后
 function ResizeReleaseCallback()
-    --SetUpHotspotsAndDraw(false)
+    DrawStatusBar(winParams)
 end
 
---- - 绘制窗口
+---- 绘制窗口
 function DrawStatusBar(params)
     params.effectiveWidth = math.max(params.min_width, math.min(params.width, GetInfo(281) - params.windowinfo.window_left))
     if params.first_time then
