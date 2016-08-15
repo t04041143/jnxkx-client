@@ -54,31 +54,26 @@ require "movewindow"
 require "serialize"
 
 ---------------------------------------------------------------------------------
--- 程序初始化 开始
+-- 参数初始化 开始
 
 -- 窗口默认参数
 local winParams = {
+    pluginId,
     init = true,
-    backgroundColour = 0x000000,
-    borderColor = 0xcccccc,
-    width = 1137,
-    height = 0,
+    backgroundColour = 0x000000,    borderColor = 0xcccccc,
+    width = 1137,    height = 0,
     lineHeight = 0,
-    x = 0,
-    y = 552,
-    startx = 0,
-    starty = 0,
+    x = 0,    y = 552,
+    startx = 0,    starty = 0,
     resizeTagSize = 10,
     minWidth = 40,
-    leftMargin = 10,
-    topMargin = 5,
-    fontId = "f1",
-    fontName = "Arial",
-    fontSize = "8",
+    leftMargin = 10,    topMargin = 5,
+    fontId = "f1",    fontName = "Arial",    fontSize = "8",
     windowInfo = null,
-    pluginId,
     lastRefresh = 0,
 }
+
+local windowInfo = null
 
 -- 状态默认数据
 local status = {
@@ -92,35 +87,33 @@ local status = {
     --water = { label = "饮水:", val = 0, max = 1, color1 = 0xffffff, color2 = 0x444444 , index =8}
 }
 
--- 获得当前插件的唯一ID（24字符）
-winParams.pluginId = GetPluginID()
-
-
--- 程序初始化 结束
+-- 参数初始化 结束
 ---------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------
 -- 插件需要响应的事件 开始
 
---- - 插件第一次安装
+---- 插件第一次安装
 function OnPluginInstall()
     -- 从上次保存的数据中恢复窗口参数
-    --local paramsString = GetVariable("winParams")
-
-    --if paramsString ~= nil and not paramsString.trim().equals("") then
-    --    winParams = loadstring(paramsString)()
-    --end
+    local paramsString = GetVariable("winParams")
+    if paramsString ~= nil and paramsString ~= "" then
+        winParams = assert(loadstring(paramsString))()
+        winParams.init = true
+    else
+        -- 获得当前插件的唯一ID（24字符）
+        winParams.pluginId = GetPluginID()
+    end
 
     -- 创建窗口
     WindowCreate(winParams.pluginId, 600, 600, 1, 1, 0, 0, winParams.backgroundColour)
 
+    -- 字体库
     local fonts = utils.getfontfamilies()
-
-    -- if not there already, add it
     if not fonts.Dina then
         AddFont(GetInfo(66) .. "\\Dina.fon")
         fonts = utils.getfontfamilies()
-    end -- if Dina not installed
+    end
 
     if fonts["Dina"] then
         winParams.fontSize = 10
@@ -131,12 +124,12 @@ function OnPluginInstall()
     else
         winParams.fontSize = 9
         winParams.fontName = "Lucida Console"
-    end -- if
+    end
 
     -- 设置窗体字体
     WindowFont(winParams.pluginId, winParams.fontId, winParams.fontName, winParams.fontSize, false, false, false, false)
-    -- 设置窗体拖动处理器
-    winParams.windowInfo = movewindow.install(winParams.pluginId,
+    -- 获得窗口的位置信息，以及预设拖动时的事件响应
+    windowInfo = movewindow.install(winParams.pluginId,
         miniwin.pos_top_right,
         miniwin.create_absolute_location,
         false,
@@ -172,8 +165,7 @@ end
 function OnPluginSaveState()
     movewindow.save_state(winParams.pluginId)
     -- 序列化winParams
-    --Note(2222)
-    --SetVariable("winParams", serialize.save("winParams",winParams))
+    SetVariable("winParams", serialize.save("winParams",winParams).. "\n return winParams")
 end
 
 --- - 插件启用
@@ -255,8 +247,8 @@ function ResizeMoveCallback()
     winParams.width = winParams.width + posx - winParams.startx
     winParams.startx = posx
     --
-    if (winParams.windowInfo.window_left + winParams.width > GetInfo(281)) then
-        winParams.width = GetInfo(281) - winParams.windowInfo.window_left
+    if (windowInfo.window_left + winParams.width > GetInfo(281)) then
+        winParams.width = GetInfo(281) - windowInfo.window_left
         winParams.startx = GetInfo(281)
     end
 end
@@ -268,15 +260,15 @@ end
 
 --- - 绘制窗口
 function DrawStatusBar(params)
-    params.effectiveWidth = math.max(params.minWidth, math.min(params.width, GetInfo(281) - params.windowInfo.window_left))
+    params.effectiveWidth = math.max(params.minWidth, math.min(params.width, GetInfo(281) - windowInfo.window_left))
     if params.init then
         -- 创建窗口
         check(WindowCreate(params.pluginId,
-            params.windowInfo.window_left, params.windowInfo.window_top, -- left, top (auto-positions)
+            windowInfo.window_left, windowInfo.window_top, -- left, top (auto-positions)
             params.effectiveWidth, -- width
             params.height, -- height
-            params.windowInfo.window_mode, -- auto-position: middle right
-            params.windowInfo.window_flags, -- flags
+            windowInfo.window_mode, -- auto-position: middle right
+            windowInfo.window_flags, -- flags
             params.backgroundColour))
         -- 增加调节大小的热点
         WindowAddHotspot(params.pluginId, "resize",

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE muclient>
-<!-- Saved on 2016Äê °ËÔÂ 15ÈÕ ÐÇÆÚÒ», ÏÂÎç 5:09 -->
+<!-- Saved on 2016Äê °ËÔÂ 15ÈÕ ÐÇÆÚÒ», ÏÂÎç 5:50 -->
 <!-- MuClient version 4.94 -->
 <!-- Written by Nick Gammon -->
 <!-- Home Page: http://www.mushclient.com/ -->
@@ -14,14 +14,14 @@
 <variables
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-15 17:09:10"
+   date_saved="2016-08-15 17:50:41"
   >
   <variable name="enabled">true</variable>
   <variable name="login">1</variable>
   <variable name="mw_66c7d927ed3516f8cfadc2ec_windowflags">2</variable>
   <variable name="mw_66c7d927ed3516f8cfadc2ec_windowmode">0</variable>
   <variable name="mw_66c7d927ed3516f8cfadc2ec_windowx">0</variable>
-  <variable name="mw_66c7d927ed3516f8cfadc2ec_windowy">470</variable>
+  <variable name="mw_66c7d927ed3516f8cfadc2ec_windowy">553</variable>
   <variable name="mw_hp_window_windowflags">2</variable>
   <variable name="mw_hp_window_windowmode">0</variable>
   <variable name="mw_hp_window_windowx">795</variable>
@@ -30,5 +30,27 @@
   <variable name="mw_skill_window_windowmode">4</variable>
   <variable name="mw_skill_window_windowx">0</variable>
   <variable name="mw_skill_window_windowy">0</variable>
+  <variable name="winParams">winParams = {}
+  winParams.fontSize = 10
+  winParams.lineHeight = 19
+  winParams.topMargin = 5
+  winParams.minWidth = 40
+  winParams.leftMargin = 10
+  winParams.borderColor = 13421772
+  winParams.startx = 948
+  winParams.starty = 0
+  winParams.fontId = "f1"
+  winParams.init = false
+  winParams.resizeTagSize = 10
+  winParams.width = 948
+  winParams.pluginId = "66c7d927ed3516f8cfadc2ec"
+  winParams.x = 0
+  winParams.y = 552
+  winParams.height = 58
+  winParams.lastRefresh = 0
+  winParams.effectiveWidth = 948
+  winParams.fontName = "Dina"
+  winParams.backgroundColour = 0
+ return winParams</variable>
 </variables>
 </muclient>
