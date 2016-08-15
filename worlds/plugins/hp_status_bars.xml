@@ -44,7 +44,7 @@
     </triggers>
 
 
-    <!--  Get our standard constants -->
+    <!-- 获取mushclient常量 -->
     <include name="constants.lua"/>
 
     <!--  Script  -->
@@ -105,7 +105,7 @@ function OnPluginInstall()
         winParams.pluginId = GetPluginID()
     end
 
-    -- 创建窗口
+    -- 创建假窗口，获取字体相关信息
     WindowCreate(winParams.pluginId, 600, 600, 1, 1, 0, 0, winParams.backgroundColour)
 
     -- 字体库
