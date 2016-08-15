@@ -79,12 +79,12 @@ local winParams = {
 
 -- 状态默认数据
 local status = {
-    exp = { label = "经验: ", val = 0, color1 = 0x00ffff, color2 = 0x00ffff, index =1 },
-    pot = { label = "潜能: ", val = 0, color1 = 0xffffff, color2 = 0x00ffff, index =2},
-    neili = { label = "内力 :", val = 0, max = 1, color1 = 0x0000ff, color2 = 0x00ffff , index =3},
-    jingli = { label = "精力 :", val = 0, max = 1, color1 = 0x0000ff, color2 = 0x00ffff , index =4},
-    qi = { label = "气血: ", val = 0, curr_max = 1, max = 1, color1 = 0x00ff00, color2 = 0x004400 , index =5},
-    jing = { label = "精神: ", val = 0, curr_max = 1, max = 1, color1 = 0xff5500, color2 = 0x442200 , index =6},
+    exp = { label = "经验: ", val = 0, color1 = 0x00ffff, color2 = 0x00ffff, index =3 },
+    pot = { label = "潜能: ", val = 0, color1 = 0xffffff, color2 = 0x00ffff, index =6},
+    neili = { label = "内力 :", val = 0, max = 1, color1 = 0x0000ff, color2 = 0x00ffff , index =2},
+    jingli = { label = "精力 :", val = 0, max = 1, color1 = 0x0000ff, color2 = 0x00ffff , index =5},
+    qi = { label = "气血: ", val = 0, curr_max = 1, max = 1, color1 = 0x00ff00, color2 = 0x004400 , index =1},
+    jing = { label = "精神: ", val = 0, curr_max = 1, max = 1, color1 = 0xff5500, color2 = 0x442200 , index =4},
     --food = { label = "食物:", val = 0, max = 1, color1 = 0x00ffff, color2 = 0x004444 , index =7},
     --water = { label = "饮水:", val = 0, max = 1, color1 = 0xffffff, color2 = 0x444444 , index =8}
 }
@@ -103,6 +103,25 @@ winParams.pluginId = GetPluginID()
 function OnPluginInstall()
     -- 创建窗口
     WindowCreate(winParams.pluginId, 600, 600, 1, 1, 0, 0, winParams.background_colour)
+
+    local fonts = utils.getfontfamilies ()
+
+   -- if not there already, add it
+   if not fonts.Dina then
+      AddFont (GetInfo (66) .. "\\Dina.fon")
+      fonts = utils.getfontfamilies ()
+   end -- if Dina not installed
+
+   if fonts ["Dina"] then
+       winParams.font_size = 10
+      winParams.font_name = "Dina"    -- the actual font
+   elseif fonts["Courier New"] then
+       winParams.font_size = 9
+      winParams.font_name = "Courier New"
+   else
+       winParams.font_size = 9
+      winParams.font_name = "Lucida Console"
+   end -- if
 
     -- 设置窗体字体
     WindowFont(winParams.pluginId, winParams.font_id, winParams.font_name, winParams.font_size, false, false, false, false)
@@ -125,7 +144,7 @@ function OnPluginInstall()
 
     local font_height = WindowFontInfo(winParams.pluginId, winParams.font_id, 1) - WindowFontInfo(winParams.pluginId, winParams.font_id, 4) + 1
     local font_width = WindowFontInfo(winParams.pluginId, winParams.font_id, 6)
-    winParams.line_height = font_height + 1
+    winParams.line_height = font_height + winParams.top_margin
 
     -- 根据显示的数据长度，设定窗口宽度
     local curr_width = math.max(40, WindowTextWidth(winParams.pluginId, winParams.font_id, barTexts) + (winParams.left_margin * (numBars + 2)))
@@ -318,7 +337,7 @@ function DisplayStatsInfo(params)
         for i, v in ipairs(sortStatus) do
             --xpos = xpos + WindowText(params.pluginId, params.font_id, v.label, xpos, ypos, 0, 0, v.color1, false)
             -- 当前数值
-            txt = string.lpad(v.val, 3, ' ')
+            txt = v.val
             -- 拼接当前上限
             if v.curr_max then
                 txt = txt .. "/" .. v.curr_max
@@ -327,23 +346,19 @@ function DisplayStatsInfo(params)
             if v.max then
                 txt = txt .. "/" .. string.rpad(v.max, 3, ' ')
             end
-            txt = string.rpad(txt, 3, ' ')
             -- 拼接百分比
-            local barMax = v.max
             if v.curr_max then
                 -- 如果存在当前上限，那么百分比显示是否达到最大上限，比如气血
                 txt = txt .. " (" .. string.lpad(string.format('%u', 100 * v.curr_max / v.max) .. "%", 4, ' ') .. ")"
-                barMax = v.curr_max
             elseif v.max then
                 -- 如果不存在当前上限，那么百分比显示当前值是否达到最大上限，比如内力
                 txt = txt .. " (" .. string.lpad(string.format('%u', 100 * v.val / v.max) .. "%", 4, ' ') .. ")"
             else
                 -- 如果只有当前值，比如经验，潜能
-                txt = txt .. v.val
             end
 
             -- 整合整个属性的文字
-            local txt = v.label .. " [" .. txt .. "] "
+            local txt = v.label .. "[" .. txt .. "] "
 
             -- 展示文本
             txtlen = WindowTextWidth(params.pluginId, params.font_id, txt)
@@ -358,8 +373,16 @@ function DisplayStatsInfo(params)
 
             -- 渲染属性文字
             WindowText(params.pluginId, params.font_id, txt, xpos, ypos, 0, 0, v.color1, false)
-            -- 计算下个bar的偏移
-            xpos = xpos+ WindowTextWidth(params.pluginId, params.font_id, txt) + params.left_margin
+
+            -- 计算下个bar的坐标
+            if v.index % 3 == 0 then
+                --换行时的坐标
+                txtlen = WindowTextWidth(params.pluginId, params.font_id, txt)
+                ypos = ypos + params.line_height
+                xpos = params.left_margin
+            else
+                 xpos = xpos+ WindowTextWidth(params.pluginId, params.font_id, txt) + params.left_margin
+            end
         end
     end
 end
