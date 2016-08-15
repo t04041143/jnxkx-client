@@ -58,36 +58,36 @@ require "serialize"
 
 -- 窗口默认参数
 local winParams = {
-    first_time = true,
-    background_colour = 0x000000,
-    border_color = 0xcccccc,
+    init = true,
+    backgroundColour = 0x000000,
+    borderColor = 0xcccccc,
     width = 1137,
     height = 0,
-    line_height = 0,
+    lineHeight = 0,
     x = 0,
     y = 552,
-    startx     = 0,
-    starty     = 0,
-    resize_tag_size = 10,
-    min_width = 40,
-    left_margin = 10,
-    top_margin = 5,
-    font_id = "f1",
-    font_name = "Arial",
-    font_size = "8",
-    windowinfo = null,
+    startx = 0,
+    starty = 0,
+    resizeTagSize = 10,
+    minWidth = 40,
+    leftMargin = 10,
+    topMargin = 5,
+    fontId = "f1",
+    fontName = "Arial",
+    fontSize = "8",
+    windowInfo = null,
     pluginId,
     lastRefresh = 0,
 }
 
 -- 状态默认数据
 local status = {
-    exp = { label = "经验: ", val = 0, color1 = 0x00ffff, color2 = 0x00ffff, index =3 },
-    pot = { label = "潜能: ", val = 0, color1 = 0xffffff, color2 = 0x00ffff, index =6},
-    neili = { label = "内力 :", val = 0, max = 1, color1 = 0x0000ff, color2 = 0x00ffff , index =2},
-    jingli = { label = "精力 :", val = 0, max = 1, color1 = 0x0000ff, color2 = 0x00ffff , index =5},
-    qi = { label = "气血: ", val = 0, curr_max = 1, max = 1, color1 = 0x00ff00, color2 = 0x004400 , index =1},
-    jing = { label = "精神: ", val = 0, curr_max = 1, max = 1, color1 = 0xff5500, color2 = 0x442200 , index =4},
+    exp = { label = "经验: ", val = 0, color1 = 0x00ffff, color2 = 0x00ffff, index = 3 },
+    pot = { label = "潜能: ", val = 0, color1 = 0xffffff, color2 = 0x00ffff, index = 6 },
+    neili = { label = "内力 :", val = 0, max = 1, color1 = 0x0000ff, color2 = 0x00ffff, index = 2 },
+    jingli = { label = "精力 :", val = 0, max = 1, color1 = 0x0000ff, color2 = 0x00ffff, index = 5 },
+    qi = { label = "气血: ", val = 0, currMax = 1, max = 1, color1 = 0x00ff00, color2 = 0x004400, index = 1 },
+    jing = { label = "精神: ", val = 0, currMax = 1, max = 1, color1 = 0xff5500, color2 = 0x442200, index = 4 },
     --food = { label = "食物:", val = 0, max = 1, color1 = 0x00ffff, color2 = 0x004444 , index =7},
     --water = { label = "饮水:", val = 0, max = 1, color1 = 0xffffff, color2 = 0x444444 , index =8}
 }
@@ -105,38 +105,38 @@ winParams.pluginId = GetPluginID()
 --- - 插件第一次安装
 function OnPluginInstall()
     -- 从上次保存的数据中恢复窗口参数
-    local paramsString = GetVariable("winParams")
+    --local paramsString = GetVariable("winParams")
 
-    if paramsString ~= nil and not paramsString.trim().equals("") then
-        winParams = loadstring(paramsString)()
-    end
+    --if paramsString ~= nil and not paramsString.trim().equals("") then
+    --    winParams = loadstring(paramsString)()
+    --end
 
     -- 创建窗口
-    WindowCreate(winParams.pluginId, 600, 600, 1, 1, 0, 0, winParams.background_colour)
+    WindowCreate(winParams.pluginId, 600, 600, 1, 1, 0, 0, winParams.backgroundColour)
 
-    local fonts = utils.getfontfamilies ()
+    local fonts = utils.getfontfamilies()
 
-   -- if not there already, add it
-   if not fonts.Dina then
-      AddFont (GetInfo (66) .. "\\Dina.fon")
-      fonts = utils.getfontfamilies ()
-   end -- if Dina not installed
+    -- if not there already, add it
+    if not fonts.Dina then
+        AddFont(GetInfo(66) .. "\\Dina.fon")
+        fonts = utils.getfontfamilies()
+    end -- if Dina not installed
 
-   if fonts ["Dina"] then
-       winParams.font_size = 10
-      winParams.font_name = "Dina"    -- the actual font
-   elseif fonts["Courier New"] then
-       winParams.font_size = 9
-      winParams.font_name = "Courier New"
-   else
-       winParams.font_size = 9
-      winParams.font_name = "Lucida Console"
-   end -- if
+    if fonts["Dina"] then
+        winParams.fontSize = 10
+        winParams.fontName = "Dina" -- the actual font
+    elseif fonts["Courier New"] then
+        winParams.fontSize = 9
+        winParams.fontName = "Courier New"
+    else
+        winParams.fontSize = 9
+        winParams.fontName = "Lucida Console"
+    end -- if
 
     -- 设置窗体字体
-    WindowFont(winParams.pluginId, winParams.font_id, winParams.font_name, winParams.font_size, false, false, false, false)
+    WindowFont(winParams.pluginId, winParams.fontId, winParams.fontName, winParams.fontSize, false, false, false, false)
     -- 设置窗体拖动处理器
-    winParams.windowinfo = movewindow.install(winParams.pluginId,
+    winParams.windowInfo = movewindow.install(winParams.pluginId,
         miniwin.pos_top_right,
         miniwin.create_absolute_location,
         false,
@@ -152,14 +152,14 @@ function OnPluginInstall()
         numBars = numBars + 1
     end
 
-    local font_height = WindowFontInfo(winParams.pluginId, winParams.font_id, 1) - WindowFontInfo(winParams.pluginId, winParams.font_id, 4) + 1
-    local font_width = WindowFontInfo(winParams.pluginId, winParams.font_id, 6)
-    winParams.line_height = font_height + winParams.top_margin
+    local font_height = WindowFontInfo(winParams.pluginId, winParams.fontId, 1) - WindowFontInfo(winParams.pluginId, winParams.fontId, 4) + 1
+    local font_width = WindowFontInfo(winParams.pluginId, winParams.fontId, 6)
+    winParams.lineHeight = font_height + winParams.topMargin
 
     -- 根据显示的数据长度，设定窗口宽度
-    local curr_width = math.max(40, WindowTextWidth(winParams.pluginId, winParams.font_id, barTexts) + (winParams.left_margin * (numBars + 2)))
-    winParams.height = (winParams.top_margin * 2 + winParams.line_height) * 2
-    winParams.width = math.max(winParams.width, winParams.min_width)
+    local curr_width = math.max(40, WindowTextWidth(winParams.pluginId, winParams.fontId, barTexts) + (winParams.leftMargin * (numBars + 2)))
+    winParams.height = (winParams.topMargin * 2 + winParams.lineHeight) * 2
+    winParams.width = math.max(winParams.width, winParams.minWidth)
 
     -- 绘制窗口
     DrawStatusBar(winParams)
@@ -193,7 +193,7 @@ end
 ---------------------------------------------------------------------------------
 -- 函数定义 开始
 
----- 通用函数
+--- - 通用函数
 string.lpad = function(str, len, char)
     str = tostring(str)
     if char == nil then char = ' ' end
@@ -206,13 +206,13 @@ string.rpad = function(str, len, char)
     return str .. string.rep(char, len - #str)
 end
 
----- 用户登录时的处理
+--- - 用户登录时的处理
 function onLogin()
     SetVariable("login", "1")
     SendNoEcho("hpbrief")
 end
 
----- 心跳检测
+--- - 心跳检测
 function onHeartbeat()
     if IsConnected() then
         -- 如果用户登录，启动刷新HP的定时器
@@ -231,7 +231,7 @@ function onHeartbeat()
     end
 end
 
----- HP状态解析
+--- - HP状态解析
 function onHpbrief(n, l, w)
     status.exp.val = w[1]
     status.pot.val = tonumber(w[2])
@@ -240,48 +240,48 @@ function onHpbrief(n, l, w)
     status.jingli.max = tonumber(w[5])
     status.jingli.val = tonumber(w[6])
     status.qi.max = tonumber(w[7])
-    status.qi.curr_max = tonumber(w[8])
+    status.qi.currMax = tonumber(w[8])
     status.qi.val = tonumber(w[9])
     status.jing.max = tonumber(w[10])
-    status.jing.curr_max = tonumber(w[11])
+    status.jing.currMax = tonumber(w[11])
     status.jing.val = tonumber(w[12])
     DisplayStatsInfo(winParams)
 end
 
----- 当窗口的大小被改变
+--- - 当窗口的大小被改变
 function ResizeMoveCallback()
-    local posx, posy = WindowInfo(winParams.pluginId, 17), WindowInfo (winParams.pluginId, 18)
+    local posx, posy = WindowInfo(winParams.pluginId, 17), WindowInfo(winParams.pluginId, 18)
 
     winParams.width = winParams.width + posx - winParams.startx
     winParams.startx = posx
-    -- 
-    if (winParams.windowinfo.window_left+winParams.width > GetInfo(281)) then
-       winParams.width = GetInfo(281)-winParams.windowinfo.window_left
-       winParams.startx = GetInfo(281)
+    --
+    if (winParams.windowInfo.window_left + winParams.width > GetInfo(281)) then
+        winParams.width = GetInfo(281) - winParams.windowInfo.window_left
+        winParams.startx = GetInfo(281)
     end
 end
 
----- 当resize按钮松开后
+--- - 当resize按钮松开后
 function ResizeReleaseCallback()
     DrawStatusBar(winParams)
 end
 
----- 绘制窗口
+--- - 绘制窗口
 function DrawStatusBar(params)
-    params.effectiveWidth = math.max(params.min_width, math.min(params.width, GetInfo(281) - params.windowinfo.window_left))
-    if params.first_time then
+    params.effectiveWidth = math.max(params.minWidth, math.min(params.width, GetInfo(281) - params.windowInfo.window_left))
+    if params.init then
         -- 创建窗口
         check(WindowCreate(params.pluginId,
-            params.windowinfo.window_left, params.windowinfo.window_top, -- left, top (auto-positions)
+            params.windowInfo.window_left, params.windowInfo.window_top, -- left, top (auto-positions)
             params.effectiveWidth, -- width
             params.height, -- height
-            params.windowinfo.window_mode, -- auto-position: middle right
-            params.windowinfo.window_flags, -- flags
-            params.background_colour))
+            params.windowInfo.window_mode, -- auto-position: middle right
+            params.windowInfo.window_flags, -- flags
+            params.backgroundColour))
         -- 增加调节大小的热点
         WindowAddHotspot(params.pluginId, "resize",
-            params.effectiveWidth - params.resize_tag_size,
-            params.height - params.resize_tag_size,
+            params.effectiveWidth - params.resizeTagSize,
+            params.height - params.resizeTagSize,
             params.effectiveWidth,
             params.height,
             "MouseOver", "CancelMouseOver", "MouseDown", "CancelMouseDown", "MouseUp", "", 6, 0)
@@ -289,11 +289,12 @@ function DrawStatusBar(params)
         CallPlugin("462b665ecb569efbf261422f", "registerMiniwindow", params.pluginId)
         -- 显示窗口
         WindowShow(params.pluginId, true)
+        params.init = false
     else
         -- everything has already been made
         -- just move them back into place
-        WindowResize(params.pluginId, params.effectiveWidth, params.height, params.background_colour)
-        --WindowMoveHotspot(winParams.pluginId, "resize", effectiveWidth-RESIZE_TAG_SIZE, height-RESIZE_TAG_SIZE, effectiveWidth, height)
+        WindowResize(params.pluginId, params.effectiveWidth, params.height, params.backgroundColour)
+        WindowMoveHotspot(winParams.pluginId, "resize", params.effectiveWidth-params.resizeTagSize, params.height-params.resizeTagSize, params.effectiveWidth, params.height)
     end
 
     -- Add the drag handler so they can move the window around
@@ -305,10 +306,10 @@ end
 --- - 展示HP中状态信息
 function DisplayStatsInfo(params)
     -- 绘制背景
-    WindowRectOp(params.pluginId, 2, 2, 2, -2, -2, params.background_colour)
+    WindowRectOp(params.pluginId, 2, 2, 2, -2, -2, params.backgroundColour)
 
     -- 绘制窗口边框.
-    WindowRectOp(params.pluginId, 1, 0, 0, 0, 0, params.border_color, 15)
+    WindowRectOp(params.pluginId, 1, 0, 0, 0, 0, params.borderColor, 15)
     WindowRectOp(params.pluginId, 1, 1, 1, -1, -1, 0x777777, 15)
 
     -- 绘制调整大小的按钮
@@ -323,37 +324,37 @@ function DisplayStatsInfo(params)
 
     if GetVariable("login") == nil or GetVariable("login") ~= "1" then
         local txt = "HP状态栏"
-        local txtlen = WindowTextWidth(params.pluginId, params.font_id, txt)
-        WindowText(params.pluginId, params.font_id, txt, (params.effectiveWidth - txtlen) / 2, (params.height / 2) - params.line_height, 0, 0, 0xeeeeee, false)
+        local txtlen = WindowTextWidth(params.pluginId, params.fontId, txt)
+        WindowText(params.pluginId, params.fontId, txt, (params.effectiveWidth - txtlen) / 2, (params.height / 2) - params.lineHeight, 0, 0, 0xeeeeee, false)
     else
         -- 排序状态值
         sortStatus = {}
-         for k, v in pairs(status) do
+        for k, v in pairs(status) do
             sortStatus[#sortStatus + 1] = v
-         end
-         table.sort(sortStatus,function(a,b)
+        end
+        table.sort(sortStatus, function(a, b)
             return a.index < b.index
-            end)
+        end)
         -- 开始绘制属性
-        --local label_width = WindowTextWidth(params.pluginId, params.font_id, "WWWWWW:")
-        local ypos = params.top_margin
-        local xpos = params.left_margin
+        --local label_width = WindowTextWidth(params.pluginId, params.fontId, "WWWWWW:")
+        local ypos = params.topMargin
+        local xpos = params.leftMargin
         for i, v in ipairs(sortStatus) do
-            --xpos = xpos + WindowText(params.pluginId, params.font_id, v.label, xpos, ypos, 0, 0, v.color1, false)
+            --xpos = xpos + WindowText(params.pluginId, params.fontId, v.label, xpos, ypos, 0, 0, v.color1, false)
             -- 当前数值
             txt = v.val
             -- 拼接当前上限
-            if v.curr_max then
-                txt = txt .. "/" .. v.curr_max
+            if v.currMax then
+                txt = txt .. "/" .. v.currMax
             end
             -- 拼接最大上限
             if v.max then
                 txt = txt .. "/" .. string.rpad(v.max, 3, ' ')
             end
             -- 拼接百分比
-            if v.curr_max then
+            if v.currMax then
                 -- 如果存在当前上限，那么百分比显示是否达到最大上限，比如气血
-                txt = txt .. " (" .. string.lpad(string.format('%u', 100 * v.curr_max / v.max) .. "%", 4, ' ') .. ")"
+                txt = txt .. " (" .. string.lpad(string.format('%u', 100 * v.currMax / v.max) .. "%", 4, ' ') .. ")"
             elseif v.max then
                 -- 如果不存在当前上限，那么百分比显示当前值是否达到最大上限，比如内力
                 txt = txt .. " (" .. string.lpad(string.format('%u', 100 * v.val / v.max) .. "%", 4, ' ') .. ")"
@@ -365,27 +366,27 @@ function DisplayStatsInfo(params)
             local txt = v.label .. "[" .. txt .. "] "
 
             -- 展示文本
-            txtlen = WindowTextWidth(params.pluginId, params.font_id, txt)
-            --outlined_text(params.pluginId, params.font_id, txt, xpos + label_width + ((bar_width - txtlen) / 2), ypos, 0, 0, 0xeeeeee)
+            txtlen = WindowTextWidth(params.pluginId, params.fontId, txt)
+            --outlined_text(params.pluginId, params.fontId, txt, xpos + label_width + ((bar_width - txtlen) / 2), ypos, 0, 0, 0xeeeeee)
             --[[gauge(params.pluginId, v.name, v.val, barMax,
-                xpos + label_width, ypos, bar_width, params.line_height, -- 窗口内的位置
+                xpos + label_width, ypos, bar_width, params.lineHeight, -- 窗口内的位置
                 v.color2, 0x000000, -- 当前填充颜色，未填充部分颜色
                 5, 0x000000, --
                 0x222222, nil, --边框颜色，阴影颜色
                 true) -- 不使用渐进填充
-            ]]--
+            ]] --
 
             -- 渲染属性文字
-            WindowText(params.pluginId, params.font_id, txt, xpos, ypos, 0, 0, v.color1, false)
+            WindowText(params.pluginId, params.fontId, txt, xpos, ypos, 0, 0, v.color1, false)
 
             -- 计算下个bar的坐标
             if v.index % 3 == 0 then
                 --换行时的坐标
-                txtlen = WindowTextWidth(params.pluginId, params.font_id, txt)
-                ypos = ypos + params.line_height
-                xpos = params.left_margin
+                txtlen = WindowTextWidth(params.pluginId, params.fontId, txt)
+                ypos = ypos + params.lineHeight
+                xpos = params.leftMargin
             else
-                 xpos = xpos+ WindowTextWidth(params.pluginId, params.font_id, txt) + params.left_margin
+                xpos = xpos + WindowTextWidth(params.pluginId, params.fontId, txt) + params.leftMargin
             end
         end
     end
