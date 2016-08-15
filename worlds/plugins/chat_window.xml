@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE muclient>
+
+<muclient>
+    <plugin
+            name="chat_window"
+            author="×íÇáºî" id="b555825a4a5700c35fa80780"
+            language="Lua" purpose="½­ÄÏÏÀ¿ÍÐÐÁÄÌì´°¿Ú"
+            save_state="y" date_written="2016-08-17 00:22:37"
+            requires="4.94"
+            version="1.0">
+        <description trim="y">
+            ½­ÄÏÏÀ¿ÍÐÐÁÄÌì´°¿Ú
+        </description>
+    </plugin>
+
+    <triggers>
+    </triggers>
+
+    <!--  Script  -->
+    <script>
+        <![CDATA[
+require "movewindow"
+require "serialize"
+    
+---------------------------------------------------------------------------------
+-- ²ÎÊý³õÊ¼»¯ ¿ªÊ¼
+
+-- ´°¿ÚÄ¬ÈÏ²ÎÊý
+local winParams = {
+    pluginId,
+    scrollBarWidth = 15,
+    maxLines = 10000,
+    width = 657, height = 131,
+    x = 0, y = 0,
+    -- date_format = "[%d %b %H:%M:%S] "   -- [30 Aug 13:29:49]   date and time 24 hour
+    -- date_format = "[%d %b %I:%M:%S%p] " -- [30 Aug 01:20:12PM] date and time 12 hour
+    -- date_format = "[%H:%M:%S] "         -- [13:29:08]          time 24 hour
+    -- date_format = "[%X] "               -- [1:22:06 PM]        time 12 hour
+    dateFormat = "[%d %b %H:%M:%S] ",
+    -- ÑÕÉ«
+    backgroundColor = GetNormalColour(1),
+    textColor = 0xffffff,
+    scrollBackgroundColor = 0xE8E8E8,
+    scrollBarColor = 0x111111,
+    scrollDetailColor = 0x000000,
+    borderColor=0xE8E8E8,
+    -- ÎÄ±¾±ßÔµµÄ¼ä¾à
+    textInset = 5,
+}
+
+local windowInfo = null
+
+-- ²ÎÊý³õÊ¼»¯ ½áÊø
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+-- ²å¼þÐèÒªÏìÓ¦µÄÊÂ¼þ ¿ªÊ¼
+
+---- ²å¼þµÚÒ»´Î°²×°
+function OnPluginInstall()
+    -- »ñµÃµ±Ç°²å¼þµÄÎ¨Ò»ID£¨24×Ö·û£©
+    winParams.pluginId = GetPluginID()
+    -- ´´½¨¼Ù´°¿Ú£¬»ñÈ¡×ÖÌåÏà¹ØÐÅÏ¢
+    check(WindowCreate(winParams.pluginId, 0, 0, 1, 1, 0, 0, winParams.backgroundColor))
+
+    -- ×ÖÌå¿â
+    local fonts = utils.getfontfamilies()
+    if not fonts.Dina then
+        AddFont(GetInfo(66) .. "\\Dina.fon")
+        fonts = utils.getfontfamilies()
+    end
+
+    if fonts["Dina"] then
+        winParams.fontSize = 10
+        winParams.fontName = "Dina" -- the actual font
+    elseif fonts["Courier New"] then
+        winParams.fontSize = 9
+        winParams.fontName = "Courier New"
+    else
+        winParams.fontSize = 9
+        winParams.fontName = "Lucida Console"
+    end
+
+    local chatFontId = "font"..winParams.pluginId
+    local headerFontId = "fonthead"..winParams.pluginId
+    check(WindowFont(winParams.pluginId, chatFontId, winParams.fontName, winParams.fontSize))
+    check(WindowFont(winParams.pluginId, headerFontId, winParams.fontName, winParams.fontSize))
+
+    chatFontHeight = WindowFontInfo(winParams.pluginId, chatFontId, 1) -  WindowFontInfo(winParams.pluginId, chatFontId, 4) + 1
+    headerFontHeight = WindowFontInfo(winParams.pluginId, headerFontId, 1) - WindowFontInfo(winParams.pluginId, headerFontId, 4) + 1
+
+    winParams.chatLineHeight = chatFontHeight+1
+    winParams.titleHeight = headerFontHeight*1.8
+
+    windowInfo  = movewindow.install(
+        winParams.pluginId, 
+        miniwin.pos_top_right, miniwin.create_absolute_location, 
+        false,
+         nil, 
+        {mouseup=MouseUp, mousedown=LeftClickOnly, dragmove=LeftClickOnly, dragrelease=LeftClickOnly},
+        {x = winParams.x, y = winParams.y}
+    )
+    
+    drawWin(true)
+end
+
+---- ±£´æ´°¿Ú×´Ì¬
+function OnPluginSaveState()
+end
+
+---- ²å¼þÆôÓÃ
+function OnPluginEnable()
+end
+
+---- ²å¼þ½ûÓÃ
+function OnPluginDisable()
+end
+
+-- ²å¼þÐèÒªÏìÓ¦µÄÊÂ¼þ ½áÊø
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+-- º¯Êý¶¨Òå ¿ªÊ¼
+
+function drawWin(firstTime)
+    winParams.showLines = math.ceil((winParams.height-winParams.titleHeight)/winParams.chatLineHeight)
+
+    if firstTime then
+        WindowCreate(
+            winParams.pluginId, 
+            windowInfo.window_left, windowInfo.window_top, 
+            winParams.width, winParams.height, 
+            windowInfo.window_mode, windowInfo.window_flags, 
+            winParams.backgroundColor
+        )
+
+        -- catch for right-click menu and line selection
+        WindowAddHotspot(
+            winParams.pluginId, 
+            "textarea", 1, 
+            winParams.titleHeight, winParams.width-winParams.scrollBarWidth-1,winParams.height-3, 
+            "", "", "MouseDown", "CancelMouseDown", "MouseUp", "", 2, 0
+        )
+        --WindowDragHandler(winParams.pluginId, "textarea", "TextareaMoveCallback", "TextareaReleaseCallback", 0x10)
+
+        WindowScrollwheelHandler(winParams.pluginId, "textarea", "wheel_move")
+        -- Ôö¼ÓÒÆ¶¯´°¿ÚµÄÏìÓ¦Çø
+        movewindow.add_drag_handler(winParams.pluginId, 0, 0, 0, winParams.titleHeight)
+    else
+    end
+
+    WindowShow(winParams.pluginId, true)
+
+    -- »æÖÆ±ß¿ò
+    WindowRectOp(winParams.pluginId, 1, 0, 0, 0, 0, winParams.borderColor)
+end
+
+-- º¯Êý¶¨Òå ½áÊø
+---------------------------------------------------------------------------------
+
+]]>
+    </script>
+
+
+</muclient>
