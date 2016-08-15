@@ -16,7 +16,7 @@
 
     <timers>
         <timer name="hpbrief" enabled="n" second="3.00" offset_second="0.00" send_to="12">
-            <send>Send("hpbrief")</send>
+            <send>SendNoEcho("hpbrief")</send>
         </timer>
         <timer name="heartbeat" enabled="y" second="3.00" offset_second="0.00" send_to="12" script="onHeartbeat"
                active_closed="y">
@@ -81,46 +81,16 @@ local winParams = {
 local status = {
     exp = { label = "经验:", val = 0, color1=0x0000ff, color2=0x00ffff },
     pot = { label = "潜能:", val = 0, color1=0x0000ff, color2=0x00ffff },
-    neili = { label = "内力:", val = 0, max = 0, color1=0x0000ff, color2=0x00ffff },
-    jingli = { label = "精力:", val = 0, max = 0, color1=0x0000ff, color2=0x00ffff },
-    qi = { label = "气血:", val = 0, curr_max = 0, max = 0, color1=0x00ff00, color2=0x004400 },
-    jing = { label = "精神:", val = 0, curr_max = 0, max = 0, color1=0xff5500, color2=0x442200 },
-    food = { label = "食物:", val = 0, max = 0, color1=0x00ffff, color2=0x004444 },
-    water = { label = "饮水:", val = 0, max = 0, color1=0xffffff, color2=0x444444 }
+    neili = { label = "内力:", val = 0, max = 1, color1=0x0000ff, color2=0x00ffff },
+    jingli = { label = "精力:", val = 0, max = 1, color1=0x0000ff, color2=0x00ffff },
+    qi = { label = "气血:", val = 0, curr_max = 1, max = 1, color1=0x00ff00, color2=0x004400 },
+    jing = { label = "精神:", val = 0, curr_max = 1, max = 1, color1=0xff5500, color2=0x442200 },
+    food = { label = "食物:", val = 0, max = 1, color1=0x00ffff, color2=0x004444 },
+    water = { label = "饮水:", val = 0, max = 1, color1=0xffffff, color2=0x444444 }
 }
 
 -- 获得当前插件的唯一ID（24字符）
 winParams.pluginId = GetPluginID()
-
-
---[[ 触发器列表
-local triggerList = {
-    {
-        -- hpbrief命令
-        funame = "brief",
-        funtrigger = "^[> ]*#(.+),(.+),(\\d+),(\\d+),(\\d+),(\\d+)\\n#(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+)",
-        line = 2,
-    },
-    {
-        -- 自己受击
-        funame = "selfbehit",
-        funtrigger = "^[> ]*[(] 你.+『(\\S+)[(]damage.*气血: (.+)[%][/](.+)[%][)]』",
-    },
-    {
-        -- 受击
-        funame = "behit",
-        funtrigger = "『(\\S+)[(]damage.*气血: (.+)[%][/](.+)[%][)]』",
-    }
-}
-
--- 生成触发器
-for i = 1, #triggerList do
-    Fun_AddTrigger("trigger_hp_" .. triggerList[i].funame, triggerList[i].funtrigger, "hp_status", "hp_" .. triggerList[i].funame)
-    if triggerList[i].line ~= nil and triggerList[i].line > 1 then
-        Fun_SetTriggerLine("trigger_hp_" .. triggerList[i].funame, triggerList[i].line)
-    end
-end
-]] --
 
 
 -- 程序初始化 结束
@@ -194,10 +164,23 @@ end
 ---------------------------------------------------------------------------------
 -- 函数定义 开始
 
+-- 通用函数
+string.lpad = function(str, len, char)
+   str = tostring(str)
+   if char == nil then char = ' ' end
+   return string.rep(char, len - #str) .. str
+end
+
+string.rpad = function(str, len, char)
+   str = tostring(str)
+   if char == nil then char = ' ' end
+   return str .. string.rep(char, len - #str)
+end
+
 ---- 用户登录时的处理
 function onLogin()
     SetVariable("login","1")
-    Send("hpbrief")
+    SendNoEcho("hpbrief")
 end
 
 ---- 心跳检测
@@ -206,7 +189,7 @@ function onHeartbeat()
         -- 如果用户登录，启动刷新HP的定时器
         if GetVariable("login") ~= nil and (not GetTimerInfo("hpbrief", 6)) then
             EnableTimer("hpbrief",true)
-        end        
+        end
     else
         -- 如果断开连接，那么停止定时器
         if GetTimerInfo("hpbrief", 6) then
@@ -323,6 +306,7 @@ function DisplayStatsInfo(params)
         local txtlen = WindowTextWidth(params.pluginId,params.font_id,txt)
         WindowText(params.pluginId, params.font_id, txt, (params.effectiveWidth-txtlen)/2, (params.height/2)-params.line_height, 0, 0, 0xeeeeee, false)
     else
+        -- 计算属性条的宽度
         local barTexts = ''
         local numBars = 0
         for i, v in pairs(status) do
@@ -330,13 +314,39 @@ function DisplayStatsInfo(params)
             numBars = numBars + 1
         end
         local bar_width = math.max(1, (params.effectiveWidth-WindowTextWidth(params.pluginId, params.font_id, barTexts)-params.left_margin)/numBars-params.left_margin)
-        
+
+        -- 开始绘制属性
+        local label_width = WindowTextWidth(params.pluginId, params.font_id,"WWWWWW:")
         local ypos = params.top_margin
         local xpos = params.left_margin
         for i, v in pairs(status) do
+            -- 标题
             xpos = xpos + WindowText(params.pluginId, params.font_id, v.label, xpos,  ypos, 0, 0, v.color1, false)
+            -- 当前数值
+            txt = string.lpad(v.val, 3, ' ')
+            -- 拼接当前上限
+            if v.curr_max then
+                txt = txt .."/"..v.curr_max
+            end
+            -- 拼接最大上限
+            if v.max then
+                txt = txt .."/"..string.rpad(v.max,3,' ')
+            end
+            txt = string.rpad(txt,3,' ')
+            -- 拼接百分比
+            if v.curr_max then
+                -- 如果存在当前上限，那么百分比显示是否达到最大上限
+                txt = txt.." ("..string.lpad(string.format('%u',100* v.curr_max/v.max).."%",4,' ')..")"
+            elseif v.max then
+                -- 如果不存在当前上限，那么百分比显示当前值是否达到最大上限
+                txt = txt.." ("..string.lpad(string.format('%u',100* v.val/v.max).."%",4,' ')..")"
+            end
+
+            -- 展示文本
+            txtlen = WindowTextWidth(params.pluginId, params.font_id,txt)
+            outlined_text(params.pluginId, params.font_id, txt, xpos+label_width+((bar_width-txtlen)/2), ypos, 0, 0, 0xeeeeee)
         end
-    end
+     end
 end
 
 -- 函数定义 结束

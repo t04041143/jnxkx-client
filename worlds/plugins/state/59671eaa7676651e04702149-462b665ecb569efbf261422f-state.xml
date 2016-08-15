@@ -5,7 +5,7 @@
 <!-- Written by Nick Gammon -->
 <!-- Home Page: http://www.mushclient.com/ -->
 
-<!-- 插件状态已被保存。插件:“main_window”，游戏:“jnxkx”。 -->
+<!-- 插件状态已被保存。插件:“Miniwindow_Z_Order_Monitor”，游戏:“jnxkx”。 -->
 
 <muclient>
 
@@ -16,10 +16,6 @@
    world_file_version="15"
    date_saved="2016-08-15 10:29:18"
   >
-  <variable name="enabled">true</variable>
-  <variable name="trbottom">457</variable>
-  <variable name="trleft">7</variable>
-  <variable name="trright">844</variable>
-  <variable name="trtop">92</variable>
+  <variable name="a66c7d927ed3516f8cfadc2ec">1</variable>
 </variables>
 </muclient>
