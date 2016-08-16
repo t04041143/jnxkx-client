@@ -29,7 +29,6 @@ require "serialize"
 -- 窗口默认参数
 local winParams = {
     pluginId,
-    scrollBarWidth = 15,
     maxLines = 10000,
     width = 657, height = 131,
     x = 0, y = 0,
@@ -41,6 +40,7 @@ local winParams = {
     -- 颜色
     backgroundColor = GetNormalColour(1),
     textColor = 0xffffff,
+    scrollBarWidth = 15,
     scrollBackgroundColor = 0xE8E8E8,
     scrollBarColor = 0x111111,
     scrollDetailColor = 0x000000,
@@ -153,17 +153,21 @@ function drawWin(firstTime)
     WindowShow(winParams.pluginId, true)
 
     -- 标题框
-    winParams.headerWidth = WindowTextWidth(winParams.pluginId, winParams.headerFontId, "聊天日志")
+    winParams.headerWidth = WindowTextWidth(winParams.pluginId, winParams.headerFontId, "频道信息")
    WindowGradient(winParams.pluginId, 1, 0, winParams.width, winParams.titleHeight, winParams.backgroundColor, 0x444444, 2)
    WindowText(
     winParams.pluginId,
-    winParams.headerFontId, "聊天日志",
+    winParams.headerFontId, "频道信息",
     (winParams.width-winParams.headerWidth)/2, ((winParams.titleHeight-winParams.headerFontHeight)/2)-1, winParams.width, winParams.titleHeight, 
     0xEEEEEE, false)
-   WindowLine(winParams.pluginId, 0, winParams.titleHeight-1, winParams.width, winParams.titleHeight-1, winParams.backgroundColor, 0 + 0x0200, 1)
+   WindowLine(winParams.pluginId, 0, winParams.titleHeight-1, winParams.width, winParams.titleHeight-1, winParams.borderColor, 0 + 0x0200, 1)
    
+   -- 滚动条
+   WindowRectOp(winParams.pluginId, 2, winParams.width-winParams.scrollBarWidth, winParams.titleHeight, winParams.width, -winParams.scrollBarWidth, winParams.scrollBackgroundColor) -- scroll bar background
+   WindowRectOp(winParams.pluginId, 1, winParams.width-winParams.scrollBarWidth+1, winParams.scrollBarWidth+winParams.titleHeight+1, winParams.width-1, winParams.height-(2*winParams.scrollBarWidth)-1, winParams.scrollDetailColor) -- scroll bar background inset rectangle
+
    -- 调整大小的图标
-   WindowRectOp(winParams.pluginId, 2, winParams.width-winParams.scrollBarWidth, winParams.height-winParams.scrollBarWidth, 0, 0, winParams.backgroundColor)
+   WindowRectOp(winParams.pluginId, 2, winParams.width-winParams.scrollBarWidth, winParams.height-winParams.scrollBarWidth, 0, 0, winParams.scrollBackgroundColor)
    WindowLine(winParams.pluginId, winParams.width-winParams.scrollBarWidth+1, winParams.height-2, winParams.width-2, winParams.height-winParams.scrollBarWidth+1, 0xffffff, 0, 2)
    WindowLine(winParams.pluginId, winParams.width-winParams.scrollBarWidth+2, winParams.height-2, winParams.width-2, winParams.height-winParams.scrollBarWidth+2, 0x696969, 0, 1)
    WindowLine(winParams.pluginId, winParams.width-winParams.scrollBarWidth+4, winParams.height-2, winParams.width-2, winParams.height-winParams.scrollBarWidth+4, 0xffffff, 0, 2)
