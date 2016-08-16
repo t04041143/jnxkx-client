@@ -32,6 +32,7 @@ local winParams = {
     maxLines = 10000,
     width = 657, height = 131,
     x = 0, y = 0,
+    startx = 0,    starty = 0,
     -- date_format = "[%d %b %H:%M:%S] "   -- [30 Aug 13:29:49]   date and time 24 hour
     -- date_format = "[%d %b %I:%M:%S%p] " -- [30 Aug 01:20:12PM] date and time 12 hour
     -- date_format = "[%H:%M:%S] "         -- [13:29:08]          time 24 hour
@@ -47,6 +48,7 @@ local winParams = {
     borderColor=0xE8E8E8,
     -- 文本边缘的间距
     textInset = 5,
+    lastRefresh=0
 }
 
 local windowInfo = null
@@ -59,8 +61,16 @@ local windowInfo = null
 
 ---- 插件第一次安装
 function OnPluginInstall()
-    -- 获得当前插件的唯一ID（24字符）
-    winParams.pluginId = GetPluginID()
+    -- 从上次保存的数据中恢复窗口参数
+    local paramsString = GetVariable("winParams")
+    if paramsString ~= nil and paramsString ~= "" then
+        winParams = assert(loadstring(paramsString))()
+        winParams.init = true
+    else
+        -- 获得当前插件的唯一ID（24字符）
+        winParams.pluginId = GetPluginID()
+    end
+
     -- 创建假窗口，获取字体相关信息
     check(WindowCreate(winParams.pluginId, 0, 0, 1, 1, 0, 0, winParams.backgroundColor))
 
@@ -85,7 +95,7 @@ function OnPluginInstall()
     winParams.chatFontId = "font"..winParams.pluginId
     winParams.headerFontId = "fonthead"..winParams.pluginId
     check(WindowFont(winParams.pluginId, winParams.chatFontId, winParams.fontName, winParams.fontSize))
-    check(WindowFont(winParams.pluginId, winParams.headerFontId, winParams.fontName, winParams.fontSize))
+    check(WindowFont(winParams.pluginId, winParams.headerFontId, winParams.fontName, winParams.fontSize -1 ))
 
     winParams.chatFontHeight = WindowFontInfo(winParams.pluginId, winParams.chatFontId, 1) -  WindowFontInfo(winParams.pluginId, winParams.chatFontId, 4) + 1
     winParams.headerFontHeight = WindowFontInfo(winParams.pluginId, winParams.headerFontId, 1) - WindowFontInfo(winParams.pluginId, winParams.headerFontId, 4) + 1
@@ -107,6 +117,9 @@ end
 
 ---- 保存窗口状态
 function OnPluginSaveState()
+    movewindow.save_state(winParams.pluginId)
+    -- 序列化winParams
+    SetVariable("winParams", serialize.save("winParams",winParams).. "\n return winParams")
 end
 
 ---- 插件启用
@@ -144,10 +157,24 @@ function drawWin(firstTime)
         )
         --WindowDragHandler(winParams.pluginId, "textarea", "TextareaMoveCallback", "TextareaReleaseCallback", 0x10)
 
-        WindowScrollwheelHandler(winParams.pluginId, "textarea", "wheel_move")
+        --WindowScrollwheelHandler(winParams.pluginId, "textarea", "wheel_move")
+        
+
         -- 增加移动窗口的响应区
         movewindow.add_drag_handler(winParams.pluginId, 0, 0, 0, winParams.titleHeight)
+
+        -- 移动窗口的事件
+        WindowAddHotspot(winParams.pluginId, "resize", 
+            winParams.width-winParams.scrollBarWidth, winParams.height-winParams.scrollBarWidth, 
+            winParams.width, winParams.height, 
+            "MouseOver", "CancelMouseOver", "MouseDown", "CancelMouseDown", "MouseUp", "", 6, 0)
+        WindowDragHandler(winParams.pluginId, "resize", "ResizeMoveCallback", "ResizeReleaseCallback", 0)
     else
+      WindowResize(winParams.pluginId, winParams.width, winParams.height, winParams.backgroundColor)
+      WindowMoveHotspot(winParams.pluginId, "textarea", 0, winParams.titleHeight, winParams.width- winParams.scrollBarWidth-1, winParams.height-3)
+      WindowMoveHotspot(winParams.pluginId, "up", winParams.width-winParams.scrollBarWidth, winParams.titleHeight, 0, winParams.titleHeight+winParams.scrollBarWidth)
+      WindowMoveHotspot(winParams.pluginId, "down", winParams.width-winParams.scrollBarWidth, winParams.height-(2*winParams.scrollBarWidth), 0, winParams.height-winParams.scrollBarWidth)
+      WindowMoveHotspot(winParams.pluginId, "resize", winParams.width-winParams.scrollBarWidth, winParams.height-winParams.scrollBarWidth, winParams.width, 0)
     end
     -- 显示窗口
     WindowShow(winParams.pluginId, true)
@@ -179,6 +206,33 @@ function drawWin(firstTime)
 
     -- 绘制边框
     WindowRectOp(winParams.pluginId, 1, 0, 0, 0, 0, winParams.borderColor)
+end
+
+function ResizeMoveCallback ()
+   local posx, posy = WindowInfo(winParams.pluginId, 17), WindowInfo(winParams.pluginId, 18)
+ winParams.width = winParams.width + posx - winParams.startx
+
+    winParams.width = winParams.width + posx - winParams.startx
+    winParams.startx = posx
+
+    --  winParams.width = GetInfo(281)-windowInfo.window_left
+     -- winParams.startx = GetInfo(281)
+
+   winParams.height = winParams.height+posy-winParams.starty
+   winParams.starty=posy
+
+    --  winParams.height = GetInfo(280)-windowInfo.window_top
+    --  winParams.starty = GetInfo(280)
+
+   if (utils.timer() - winParams.lastRefresh > 0.0333) then
+      drawWin(false)
+      winParams.lastRefresh = utils.timer()
+   end
+end
+
+function ResizeReleaseCallback ()
+   --winParams.height = winParams.titleHeight +(line_height*(WINDOW_LINES-1))+3 -- snap height down to not have dead space after last line
+   drawWin(true) -- true here causes old lines to re-wrap at the new size
 end
 
 -- 函数定义 结束
