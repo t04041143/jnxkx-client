@@ -82,16 +82,16 @@ function OnPluginInstall()
         winParams.fontName = "Lucida Console"
     end
 
-    local chatFontId = "font"..winParams.pluginId
-    local headerFontId = "fonthead"..winParams.pluginId
-    check(WindowFont(winParams.pluginId, chatFontId, winParams.fontName, winParams.fontSize))
-    check(WindowFont(winParams.pluginId, headerFontId, winParams.fontName, winParams.fontSize))
+    winParams.chatFontId = "font"..winParams.pluginId
+    winParams.headerFontId = "fonthead"..winParams.pluginId
+    check(WindowFont(winParams.pluginId, winParams.chatFontId, winParams.fontName, winParams.fontSize))
+    check(WindowFont(winParams.pluginId, winParams.headerFontId, winParams.fontName, winParams.fontSize))
 
-    chatFontHeight = WindowFontInfo(winParams.pluginId, chatFontId, 1) -  WindowFontInfo(winParams.pluginId, chatFontId, 4) + 1
-    headerFontHeight = WindowFontInfo(winParams.pluginId, headerFontId, 1) - WindowFontInfo(winParams.pluginId, headerFontId, 4) + 1
+    winParams.chatFontHeight = WindowFontInfo(winParams.pluginId, winParams.chatFontId, 1) -  WindowFontInfo(winParams.pluginId, winParams.chatFontId, 4) + 1
+    winParams.headerFontHeight = WindowFontInfo(winParams.pluginId, winParams.headerFontId, 1) - WindowFontInfo(winParams.pluginId, winParams.headerFontId, 4) + 1
 
-    winParams.chatLineHeight = chatFontHeight+1
-    winParams.titleHeight = headerFontHeight*1.8
+    winParams.chatLineHeight = winParams.chatFontHeight+1
+    winParams.titleHeight = winParams.headerFontHeight*1.8
 
     windowInfo  = movewindow.install(
         winParams.pluginId, 
@@ -101,7 +101,7 @@ function OnPluginInstall()
         {mouseup=MouseUp, mousedown=LeftClickOnly, dragmove=LeftClickOnly, dragrelease=LeftClickOnly},
         {x = winParams.x, y = winParams.y}
     )
-    
+
     drawWin(true)
 end
 
@@ -149,8 +149,29 @@ function drawWin(firstTime)
         movewindow.add_drag_handler(winParams.pluginId, 0, 0, 0, winParams.titleHeight)
     else
     end
-
+    -- 显示窗口
     WindowShow(winParams.pluginId, true)
+
+    -- 标题框
+    winParams.headerWidth = WindowTextWidth(winParams.pluginId, winParams.headerFontId, "聊天日志")
+   WindowGradient(winParams.pluginId, 1, 0, winParams.width, winParams.titleHeight, winParams.backgroundColor, 0x444444, 2)
+   WindowText(
+    winParams.pluginId,
+    winParams.headerFontId, "聊天日志",
+    (winParams.width-winParams.headerWidth)/2, ((winParams.titleHeight-winParams.headerFontHeight)/2)-1, winParams.width, winParams.titleHeight, 
+    0xEEEEEE, false)
+   WindowLine(winParams.pluginId, 0, winParams.titleHeight-1, winParams.width, winParams.titleHeight-1, winParams.backgroundColor, 0 + 0x0200, 1)
+   
+   -- 调整大小的图标
+   WindowRectOp(winParams.pluginId, 2, winParams.width-winParams.scrollBarWidth, winParams.height-winParams.scrollBarWidth, 0, 0, winParams.backgroundColor)
+   WindowLine(winParams.pluginId, winParams.width-winParams.scrollBarWidth+1, winParams.height-2, winParams.width-2, winParams.height-winParams.scrollBarWidth+1, 0xffffff, 0, 2)
+   WindowLine(winParams.pluginId, winParams.width-winParams.scrollBarWidth+2, winParams.height-2, winParams.width-2, winParams.height-winParams.scrollBarWidth+2, 0x696969, 0, 1)
+   WindowLine(winParams.pluginId, winParams.width-winParams.scrollBarWidth+4, winParams.height-2, winParams.width-2, winParams.height-winParams.scrollBarWidth+4, 0xffffff, 0, 2)
+   WindowLine(winParams.pluginId, winParams.width-winParams.scrollBarWidth+5, winParams.height-2, winParams.width-2, winParams.height-winParams.scrollBarWidth+5, 0x696969, 0, 1)
+   WindowLine(winParams.pluginId, winParams.width-winParams.scrollBarWidth+7, winParams.height-2, winParams.width-2, winParams.height-winParams.scrollBarWidth+7, 0xffffff, 0, 2)
+   WindowLine(winParams.pluginId, winParams.width-winParams.scrollBarWidth+8, winParams.height-2, winParams.width-2, winParams.height-winParams.scrollBarWidth+8, 0x696969, 0, 1)
+   WindowLine(winParams.pluginId, winParams.width-winParams.scrollBarWidth+10, winParams.height-2, winParams.width-2, winParams.height-winParams.scrollBarWidth+10, 0xffffff, 0, 2)
+   WindowLine(winParams.pluginId, winParams.width-winParams.scrollBarWidth+11, winParams.height-2, winParams.width-2, winParams.height-winParams.scrollBarWidth+11, 0x696969, 0, 1)
 
     -- 绘制边框
     WindowRectOp(winParams.pluginId, 1, 0, 0, 0, 0, winParams.borderColor)
