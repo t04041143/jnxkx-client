@@ -63,13 +63,13 @@ local windowInfo = null
 function OnPluginInstall()
     -- 从上次保存的数据中恢复窗口参数
     local paramsString = GetVariable("winParams")
-    if paramsString ~= nil and paramsString ~= "" then
-        winParams = assert(loadstring(paramsString))()
+   if paramsString ~= nil and paramsString ~= "" then
+      winParams = assert(loadstring(paramsString))()
         winParams.init = true
-    else
+   else
         -- 获得当前插件的唯一ID（24字符）
         winParams.pluginId = GetPluginID()
-    end
+  end
 
     -- 创建假窗口，获取字体相关信息
     check(WindowCreate(winParams.pluginId, 0, 0, 1, 1, 0, 0, winParams.backgroundColor))
@@ -124,10 +124,12 @@ end
 
 ---- 插件启用
 function OnPluginEnable()
+    OnPluginInstall()
 end
 
 ---- 插件禁用
 function OnPluginDisable()
+    WindowShow(winParams.pluginId, false)
 end
 
 -- 插件需要响应的事件 结束
@@ -210,20 +212,23 @@ end
 
 function ResizeMoveCallback ()
    local posx, posy = WindowInfo(winParams.pluginId, 17), WindowInfo(winParams.pluginId, 18)
- winParams.width = winParams.width + posx - winParams.startx
 
     winParams.width = winParams.width + posx - winParams.startx
     winParams.startx = posx
+    --
+    if (windowInfo.window_left + winParams.width > GetInfo(281)) then
+        winParams.width = GetInfo(281) - windowInfo.window_left
+        winParams.startx = GetInfo(281)
+    end
 
-    --  winParams.width = GetInfo(281)-windowInfo.window_left
-     -- winParams.startx = GetInfo(281)
+   -- winParams.height = winParams.height+posy-winParams.starty
+   --winParams.starty=posy
 
-   winParams.height = winParams.height+posy-winParams.starty
-   winParams.starty=posy
+       winParams.height = winParams.height+posy-winParams.starty
+winParams.starty=windowInfo.window_top+winParams.height
 
     --  winParams.height = GetInfo(280)-windowInfo.window_top
     --  winParams.starty = GetInfo(280)
-
    if (utils.timer() - winParams.lastRefresh > 0.0333) then
       drawWin(false)
       winParams.lastRefresh = utils.timer()

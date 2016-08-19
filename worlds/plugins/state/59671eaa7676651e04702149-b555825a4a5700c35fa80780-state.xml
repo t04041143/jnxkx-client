@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE muclient>
-<!-- Saved on 2016Äê °ËÔÂ 18ÈÕ ÐÇÆÚËÄ, ÏÂÎç 7:40 -->
+<!-- Saved on 2016Äê °ËÔÂ 19ÈÕ ÐÇÆÚÎå, ÏÂÎç 6:13 -->
 <!-- MuClient version 4.94 -->
 <!-- Written by Nick Gammon -->
 <!-- Home Page: http://www.mushclient.com/ -->
@@ -14,7 +14,7 @@
 <variables
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-18 19:40:33"
+   date_saved="2016-08-19 18:13:08"
   >
   <variable name="mw_b555825a4a5700c35fa80780_windowflags">2</variable>
   <variable name="mw_b555825a4a5700c35fa80780_windowmode">0</variable>
@@ -22,33 +22,33 @@
   <variable name="mw_b555825a4a5700c35fa80780_windowy">0</variable>
   <variable name="winParams">winParams = {}
   winParams.fontSize = 10
-  winParams.textInset = 5
+  winParams.chatLineHeight = 15
   winParams.scrollBarWidth = 15
   winParams.titleHeight = 23.4
   winParams.scrollDetailColor = 0
-  winParams.backgroundColor = 0
+  winParams.headerFontHeight = 13
   winParams.scrollBackgroundColor = 15263976
   winParams.scrollBarColor = 1118481
   winParams.borderColor = 15263976
-  winParams.chatFontId = "fontb555825a4a5700c35fa80780"
+  winParams.backgroundColor = 0
   winParams.showLines = 7
-  winParams.startx = 124
-  winParams.starty = -8
-  winParams.headerFontHeight = 13
+  winParams.startx = 904
+  winParams.starty = 125
+  winParams.lastRefresh = 282577.27551589
   winParams.maxLines = 10000
   winParams.dateFormat = "[%d %b %H:%M:%S] "
-  winParams.init = true
-  winParams.height = 123
-  winParams.pluginId = "b555825a4a5700c35fa80780"
-  winParams.fontName = "Dina"
-  winParams.width = 905
-  winParams.y = 0
-  winParams.x = 0
-  winParams.headerFontId = "fontheadb555825a4a5700c35fa80780"
-  winParams.chatFontHeight = 14
-  winParams.lastRefresh = 24744.364048039
   winParams.headerWidth = 56
-  winParams.chatLineHeight = 15
+  winParams.headerFontId = "fontheadb555825a4a5700c35fa80780"
+  winParams.y = 0
+  winParams.fontName = "Dina"
+  winParams.width = 904
+  winParams.pluginId = "b555825a4a5700c35fa80780"
+  winParams.x = 0
+  winParams.chatFontId = "fontb555825a4a5700c35fa80780"
+  winParams.chatFontHeight = 14
+  winParams.height = 125
+  winParams.init = true
+  winParams.textInset = 5
   winParams.textColor = 16777215
  return winParams</variable>
 </variables>
