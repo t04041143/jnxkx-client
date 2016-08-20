@@ -59,7 +59,6 @@ require "serialize"
 -- 窗口默认参数
 local winParams = {
     pluginId,
-    init = true,
     backgroundColour = 0x000000,    borderColor = 0xcccccc,
     width = 1137,    height = 0,
     lineHeight = 0,
@@ -137,11 +136,11 @@ function OnPluginInstall()
 
     -- 根据显示的数据长度，设定窗口宽度
     local curr_width = math.max(40, WindowTextWidth(winParams.pluginId, winParams.fontId, barTexts) + (winParams.leftMargin * (numBars + 2)))
-    winParams.height = (winParams.topMargin * 2 + winParams.lineHeight) * 2
+    winParams.height = (winParams.topMargin * 2 + winParams.lineHeight) * 1.7
     winParams.width = math.max(winParams.width, winParams.minWidth)
 
     -- 绘制窗口
-    DrawStatusBar(winParams)
+    drawWin(true)
 
     -- 保存当前状态
     OnPluginSaveState()
@@ -237,73 +236,78 @@ function ResizeMoveCallback()
         winParams.width = GetInfo(281) - windowInfo.window_left
         winParams.startx = GetInfo(281)
     end
+
+    if (utils.timer() - winParams.lastRefresh > 0.0333) then
+        drawWin(false)
+        winParams.lastRefresh = utils.timer()
+    end
 end
 
 --- - 当resize按钮松开后
 function ResizeReleaseCallback()
-    DrawStatusBar(winParams)
+    drawWin(false)
 end
 
---- - 绘制窗口
-function DrawStatusBar(params)
-    params.effectiveWidth = math.max(params.minWidth, math.min(params.width, GetInfo(281) - windowInfo.window_left))
-    if params.init then
+--- 绘制窗口
+function drawWin(firstTime)
+    winParams.effectiveWidth = math.max(winParams.minWidth, math.min(winParams.width, GetInfo(281) - windowInfo.window_left))
+    if firstTime then
         -- 创建窗口
-        check(WindowCreate(params.pluginId,
+        check(WindowCreate(winParams.pluginId,
             windowInfo.window_left, windowInfo.window_top, -- left, top (auto-positions)
-            params.effectiveWidth, -- width
-            params.height, -- height
+            winParams.effectiveWidth, -- width
+            winParams.height, -- height
             windowInfo.window_mode, -- auto-position: middle right
             windowInfo.window_flags, -- flags
-            params.backgroundColour))
+            winParams.backgroundColour))
         -- 增加调节大小的热点
-        WindowAddHotspot(params.pluginId, "resize",
-            params.effectiveWidth - params.resizeTagSize,
-            params.height - params.resizeTagSize,
-            params.effectiveWidth,
-            params.height,
+        WindowAddHotspot(winParams.pluginId, "resize",
+            winParams.effectiveWidth - winParams.resizeTagSize,
+            winParams.height - winParams.resizeTagSize,
+            winParams.effectiveWidth,
+            winParams.height,
             "MouseOver", "CancelMouseOver", "MouseDown", "CancelMouseDown", "MouseUp", "", 6, 0)
-        WindowDragHandler(params.pluginId, "resize", "ResizeMoveCallback", "ResizeReleaseCallback", 0)
-        CallPlugin("462b665ecb569efbf261422f", "registerMiniwindow", params.pluginId)
-        -- 显示窗口
-        WindowShow(params.pluginId, true)
-        params.init = false
+        WindowDragHandler(winParams.pluginId, "resize", "ResizeMoveCallback", "ResizeReleaseCallback", 0)
+        CallPlugin("462b665ecb569efbf261422f", "registerMiniwindow", winParams.pluginId)
     else
         -- everything has already been made
         -- just move them back into place
-        WindowResize(params.pluginId, params.effectiveWidth, params.height, params.backgroundColour)
-        WindowMoveHotspot(winParams.pluginId, "resize", params.effectiveWidth-params.resizeTagSize, params.height-params.resizeTagSize, params.effectiveWidth, params.height)
+        WindowResize(winParams.pluginId, winParams.effectiveWidth, winParams.height, winParams.backgroundColour)
+        WindowMoveHotspot(winParams.pluginId, "resize", winParams.effectiveWidth-winParams.resizeTagSize, winParams.height-winParams.resizeTagSize, winParams.effectiveWidth, winParams.height)
     end
 
-    -- Add the drag handler so they can move the window around
-    movewindow.add_drag_handler(params.pluginId, 0, 0, 0, 0)
+            -- 显示窗口
+        WindowShow(winParams.pluginId, true)
 
-    DisplayStatsInfo(params)
+    -- Add the drag handler so they can move the window around
+    movewindow.add_drag_handler(winParams.pluginId, 0, 0, 0, 0)
+
+    DisplayStatsInfo()
 end
 
 --- - 展示HP中状态信息
-function DisplayStatsInfo(params)
+function DisplayStatsInfo()
     -- 绘制背景
-    WindowRectOp(params.pluginId, 2, 2, 2, -2, -2, params.backgroundColour)
+    WindowRectOp(winParams.pluginId, 2, 2, 2, -2, -2, winParams.backgroundColour)
 
     -- 绘制窗口边框.
-    WindowRectOp(params.pluginId, 1, 0, 0, 0, 0, params.borderColor, 15)
-    WindowRectOp(params.pluginId, 1, 1, 1, -1, -1, 0x777777, 15)
+    WindowRectOp(winParams.pluginId, 1, 0, 0, 0, 0, winParams.borderColor, 15)
+    WindowRectOp(winParams.pluginId, 1, 1, 1, -1, -1, 0x777777, 15)
 
     -- 绘制调整大小的按钮
-    WindowLine(params.pluginId, params.effectiveWidth - 3, params.height - 2, params.effectiveWidth - 2, params.height - 3, 0xffffff, 0, 2)
-    WindowLine(params.pluginId, params.effectiveWidth - 4, params.height - 2, params.effectiveWidth - 2, params.height - 4, 0x696969, 0, 1)
-    WindowLine(params.pluginId, params.effectiveWidth - 6, params.height - 2, params.effectiveWidth - 2, params.height - 6, 0xffffff, 0, 2)
-    WindowLine(params.pluginId, params.effectiveWidth - 7, params.height - 2, params.effectiveWidth - 2, params.height - 7, 0x696969, 0, 1)
-    WindowLine(params.pluginId, params.effectiveWidth - 9, params.height - 2, params.effectiveWidth - 2, params.height - 9, 0xffffff, 0, 2)
-    WindowLine(params.pluginId, params.effectiveWidth - 10, params.height - 2, params.effectiveWidth - 2, params.height - 10, 0x696969, 0, 1)
-    WindowLine(params.pluginId, params.effectiveWidth - 12, params.height - 2, params.effectiveWidth - 2, params.height - 12, 0xffffff, 0, 2)
-    WindowLine(params.pluginId, params.effectiveWidth - 13, params.height - 2, params.effectiveWidth - 2, params.height - 13, 0x696969, 0, 1)
+    WindowLine(winParams.pluginId, winParams.effectiveWidth - 3, winParams.height - 2, winParams.effectiveWidth - 2, winParams.height - 3, 0xffffff, 0, 2)
+    WindowLine(winParams.pluginId, winParams.effectiveWidth - 4, winParams.height - 2, winParams.effectiveWidth - 2, winParams.height - 4, 0x696969, 0, 1)
+    WindowLine(winParams.pluginId, winParams.effectiveWidth - 6, winParams.height - 2, winParams.effectiveWidth - 2, winParams.height - 6, 0xffffff, 0, 2)
+    WindowLine(winParams.pluginId, winParams.effectiveWidth - 7, winParams.height - 2, winParams.effectiveWidth - 2, winParams.height - 7, 0x696969, 0, 1)
+    WindowLine(winParams.pluginId, winParams.effectiveWidth - 9, winParams.height - 2, winParams.effectiveWidth - 2, winParams.height - 9, 0xffffff, 0, 2)
+    WindowLine(winParams.pluginId, winParams.effectiveWidth - 10, winParams.height - 2, winParams.effectiveWidth - 2, winParams.height - 10, 0x696969, 0, 1)
+    WindowLine(winParams.pluginId, winParams.effectiveWidth - 12, winParams.height - 2, winParams.effectiveWidth - 2, winParams.height - 12, 0xffffff, 0, 2)
+    WindowLine(winParams.pluginId, winParams.effectiveWidth - 13, winParams.height - 2, winParams.effectiveWidth - 2, winParams.height - 13, 0x696969, 0, 1)
 
     if GetVariable("login") == nil or GetVariable("login") ~= "1" then
         local txt = "HP状态栏"
-        local txtlen = WindowTextWidth(params.pluginId, params.fontId, txt)
-        WindowText(params.pluginId, params.fontId, txt, (params.effectiveWidth - txtlen) / 2, (params.height / 2) - params.lineHeight, 0, 0, 0xeeeeee, false)
+        local txtlen = WindowTextWidth(winParams.pluginId, winParams.fontId, txt)
+        WindowText(winParams.pluginId, winParams.fontId, txt, (winParams.effectiveWidth - txtlen) / 2, (winParams.height / 2) - winParams.lineHeight, 0, 0, 0xeeeeee, false)
     else
         -- 排序状态值
         sortStatus = {}
@@ -314,11 +318,11 @@ function DisplayStatsInfo(params)
             return a.index < b.index
         end)
         -- 开始绘制属性
-        --local label_width = WindowTextWidth(params.pluginId, params.fontId, "WWWWWW:")
-        local ypos = params.topMargin
-        local xpos = params.leftMargin
+        --local label_width = WindowTextWidth(winParams.pluginId, winParams.fontId, "WWWWWW:")
+        local ypos = winParams.topMargin
+        local xpos = winParams.leftMargin
         for i, v in ipairs(sortStatus) do
-            --xpos = xpos + WindowText(params.pluginId, params.fontId, v.label, xpos, ypos, 0, 0, v.color1, false)
+            --xpos = xpos + WindowText(winParams.pluginId, winParams.fontId, v.label, xpos, ypos, 0, 0, v.color1, false)
             -- 当前数值
             txt = v.val
             -- 拼接当前上限
@@ -344,10 +348,10 @@ function DisplayStatsInfo(params)
             local txt = v.label .. "[" .. txt .. "] "
 
             -- 展示文本
-            txtlen = WindowTextWidth(params.pluginId, params.fontId, txt)
-            --outlined_text(params.pluginId, params.fontId, txt, xpos + label_width + ((bar_width - txtlen) / 2), ypos, 0, 0, 0xeeeeee)
-            --[[gauge(params.pluginId, v.name, v.val, barMax,
-                xpos + label_width, ypos, bar_width, params.lineHeight, -- 窗口内的位置
+            txtlen = WindowTextWidth(winParams.pluginId, winParams.fontId, txt)
+            --outlined_text(winParams.pluginId, winParams.fontId, txt, xpos + label_width + ((bar_width - txtlen) / 2), ypos, 0, 0, 0xeeeeee)
+            --[[gauge(winParams.pluginId, v.name, v.val, barMax,
+                xpos + label_width, ypos, bar_width, winParams.lineHeight, -- 窗口内的位置
                 v.color2, 0x000000, -- 当前填充颜色，未填充部分颜色
                 5, 0x000000, --
                 0x222222, nil, --边框颜色，阴影颜色
@@ -355,16 +359,16 @@ function DisplayStatsInfo(params)
             ]] --
 
             -- 渲染属性文字
-            WindowText(params.pluginId, params.fontId, txt, xpos, ypos, 0, 0, v.color1, false)
+            WindowText(winParams.pluginId, winParams.fontId, txt, xpos, ypos, 0, 0, v.color1, false)
 
             -- 计算下个bar的坐标
             if v.index % 3 == 0 then
                 --换行时的坐标
-                txtlen = WindowTextWidth(params.pluginId, params.fontId, txt)
-                ypos = ypos + params.lineHeight
-                xpos = params.leftMargin
+                txtlen = WindowTextWidth(winParams.pluginId, winParams.fontId, txt)
+                ypos = ypos + winParams.lineHeight
+                xpos = winParams.leftMargin
             else
-                xpos = xpos + WindowTextWidth(params.pluginId, params.fontId, txt) + params.leftMargin
+                xpos = xpos + WindowTextWidth(winParams.pluginId, winParams.fontId, txt) + winParams.leftMargin
             end
         end
     end
