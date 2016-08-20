@@ -18,7 +18,7 @@
         <timer name="hpbrief" enabled="n" second="3.00" offset_second="0.00" send_to="12">
             <send>SendNoEcho("hpbrief")</send>
         </timer>
-        <timer name="heartbeat" enabled="y" second="3.00" offset_second="0.00" send_to="12" script="onHeartbeat"
+        <timer name="heartbeat" enabled="n" second="3.00" offset_second="0.00" send_to="12" script="onHeartbeat"
                active_closed="y">
         </timer>
     </timers>

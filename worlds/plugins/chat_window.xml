@@ -30,7 +30,7 @@
                  sequence="100">
         </trigger>
 
-        <trigger enabled="y"
+        <trigger enabled="n"
                  match="^(&gt;)*( )*(你告诉|.+告诉你|你回答|.+回答你)"
                  omit_from_output="y"
                  regexp="y"
@@ -38,7 +38,7 @@
                  sequence="100">
         </trigger>
 
-        <trigger enabled="n"
+        <trigger enabled="y"
                  name="remort_auction"
                  match="^(&gt;)*( )*【(后记|号外|江湖逸事|天灾人祸)】"
                  regexp="y"
@@ -46,15 +46,15 @@
                  omit_from_output="y"
                  sequence="100"></trigger>
 
-        <trigger enabled="n"
+        <trigger enabled="y"
                  name="global_quest"
-                 match="^(&gt;)*( )*【(江湖谣传|塞外军情|鄱阳湖|洛阳城传闻|官府通告|任务|交易)】"
+                 match="^(&gt;)*( )*【(江湖|江湖谣传|塞外军情|鄱阳湖|洛阳城传闻|官府通告|任务|交易)】"
                  regexp="y"
                  script="untaggedInfo"
                  omit_from_output="y"
                  sequence="100"></trigger>
 
-        <trigger enabled="n"
+        <trigger enabled="y"
                  name="info"
                  match="^(&gt;)*( )*【(江湖传闻|游戏更新|北侠公告| 天色 |北侠QQ群|拍卖|醒目|表决|算命先生)】"
                  regexp="y"
@@ -62,7 +62,7 @@
                  omit_from_output="y"
                  sequence="100"></trigger>
 
-        <trigger enabled="n"
+        <trigger enabled="y"
                  name="raidinfo"
                  match="^(&gt;)*( )*【(求助|新手)】"
                  regexp="y"
@@ -70,7 +70,7 @@
                  omit_from_output="y"
                  sequence="100"></trigger>
 
-        <trigger enabled="n"
+        <trigger enabled="y"
                  name="claninfo"
                  match="^(&gt;)*( )*【谣言】"
                  regexp="y"
@@ -78,7 +78,7 @@
                  omit_from_output="y"
                  sequence="100"></trigger>
 
-        <trigger enabled="n"
+        <trigger enabled="y"
                  name="baowei_info"
                  match="^(&gt;)*( )*【(大明|甲午战保|保卫|保卫襄阳|公告天下|密探回报|任务奖励)】"
                  regexp="y"
@@ -156,6 +156,10 @@ local winParams = {
     rawChatlines = {},
     lineStart = 0,
     lineEnd = 0,
+    copyStartLine = nil,
+    copyEndLine = nil,
+    startCopyingX = 0,
+    endCopyingX = 0,
     -- 滚动条相关
     scrollBarWidth = 15,
     scrollBarHeight = 0,
@@ -200,13 +204,13 @@ winParams.pluginId = GetPluginID()
     end
 
     if fonts["Dina"] then
-        winParams.fontSize = 10
+        winParams.fontSize = 8
         winParams.fontName = "Dina" -- the actual font
     elseif fonts["Courier New"] then
-        winParams.fontSize = 9
+        winParams.fontSize = 8
         winParams.fontName = "Courier New"
     else
-        winParams.fontSize = 9
+        winParams.fontSize = 8
         winParams.fontName = "Lucida Console"
     end
 
@@ -291,6 +295,9 @@ function drawWin(firstTime)
     end
     -- 显示窗口
     WindowShow(winParams.pluginId, true)
+
+       winParams.lineStart = math.max(1, #(winParams.chatlines)-winParams.showLines+2)
+   winParams.lineEnd = math.max(1, #(winParams.chatlines))
 
     -- 标题框
     winParams.headerWidth = WindowTextWidth(winParams.pluginId, winParams.headerFontId, "频道信息")
@@ -472,7 +479,7 @@ function fillBuffer(rawstyles, rawurls)
 
         -- make this handle forced newlines like in the flickoff social
         -- by splitting off and sticking the next part back into the
-        -- styles list for the next pass        
+        -- styles list for the next pass
         newline = string.find(style.text, "\n")
         if newline then
             insert(styles, 1, {
@@ -661,7 +668,7 @@ function drawStuff()
     end
     winParams.hyperlinks = {}
 
-    -- writeLines()
+    writeLines()
 end
 
 -- Returns an array {start, end, text}
@@ -692,6 +699,66 @@ function add_line ( line, is_beginning_of_message, urls )
    end -- if
 end -- add_line
 
+-- 展示频道行信息
+function writeLines ()
+   WindowRectOp(winParams.pluginId, 2, 1, winParams.titleHeight, winParams.width-winParams.scrollBarWidth, -1, winParams.backgroundColor) -- clear
+   local ax = nil
+   local zx = nil
+   local line_no_colors = ""
+   if #(winParams.chatlines) >= 1 then
+      for count = winParams.lineStart, winParams.lineEnd do
+         ax = nil
+         zx = nil
+         line_no_colors = strip_colours(StylesToColoursOneLine(copytable.deep(winParams.chatlines[count][1]), 1, 99999))
+         
+         -- create clickable links for urls
+         for i,v in ipairs(winParams.chatlines[count][3]) do
+            local left = winParams.textInset+WindowTextWidth(winParams.pluginId, winParams.chatFontId, string.sub(line_no_colors, 1, v.start-1))
+            local right = left+WindowTextWidth(winParams.pluginId, winParams.chatFontId, string.sub(line_no_colors, v.start-1, v.stop-1))
+            local top = winParams.titleHeight+((count-winParams.lineStart)*winParams.chatLineHeight)-1
+            local bottom = top+winParams.chatLineHeight+1
+            local link_name = table.concat({v.text,"   ",count,v.start,v.stop})
+            if not WindowHotspotInfo(winParams.pluginId, link_name, 1) then
+               winParams.hyperlinks[link_name] = v.text
+               WindowAddHotspot(winParams.pluginId, link_name, left, top, math.min(right, winParams.width-winParams.scrollBarWidth-1), bottom, "MouseOverLink", "CancelMouseOverLink", "MouseDown", "CancelMouseDown", "MouseUp", "Right-click this URL if you want to open it:\n"..v.text, 1)
+               WindowDragHandler(winParams.pluginId, link_name, "TextareaMoveCallback", "TextareaReleaseCallback", 0x10)
+               WindowScrollwheelHandler(winParams.pluginId, link_name, "wheel_move")
+            end
+         end
+         
+         -- create highlighting parameters when text is selected
+         if winParams.copyStartLine ~= nil and winParams.copyEndLine ~= nil and count >= winParams.copyStartLine and count <= winParams.copyEndLine then
+            ax = (((count == winParams.copyStartLine) and math.min(winParams.startCopyingX, WindowTextWidth(winParams.pluginId, winParams.chatFontId, line_no_colors)+winParams.textInset)) or winParams.textInset)
+            -- end of highlight for this line
+            zx = math.min(winParams.width-winParams.scrollBarWidth,(((count == winParams.copyEndLine) 
+                and math.min(winParams.endCopyingX, WindowTextWidth(winParams.pluginId, winParams.chatFontId, line_no_colors)+winParams.textInset)) 
+            or WindowTextWidth(winParams.pluginId, winParams.chatFontId, line_no_colors)+winParams.textInset))
+         end
+         
+         displayLine( count-winParams.lineStart, winParams.chatlines[count][1], ax, zx )
+      end
+   end
+   Repaint()
+end
+
+-- 显示一行信息
+function displayLine (line, styles, backfill_start, backfill_end)
+   local left = winParams.textInset
+   local top = winParams.titleHeight+(line* winParams.chatLineHeight)
+   if (backfill_start ~= nil and backfill_end ~= nil) then
+      WindowRectOp(win, 2, backfill_start, top+1, backfill_end, top+winParams.chatLineHeight+1, 0x444444)
+   end
+   if styles then
+      for _, v in ipairs(styles) do
+         local t = v.text
+         -- now clean up dangling newlines that cause block characters to show
+         if string.sub(v.text,-1) == "\n" then
+            t = string.sub(v.text,1,-2)
+         end
+         left = left + WindowText(winParams.pluginId, winParams.chatFontId, t, left, top,  winParams.width-winParams.scrollBarWidth, 0, v.textcolour)
+      end -- for each style run
+   end
+end
 
 -- 函数定义 结束
 ---------------------------------------------------------------------------------
