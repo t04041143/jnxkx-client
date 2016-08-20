@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE muclient>
-<!-- Saved on 2016Äê °ËÔÂ 20ÈÕ ÐÇÆÚÁù, ÉÏÎç 9:45 -->
+<!-- Saved on 2016Äê °ËÔÂ 20ÈÕ ÐÇÆÚÁù, ÏÂÎç 2:31 -->
 <!-- MuClient version 4.94 -->
 <!-- Written by Nick Gammon -->
 <!-- Home Page: http://www.mushclient.com/ -->
@@ -14,41 +14,106 @@
 <variables
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 09:45:57"
+   date_saved="2016-08-20 14:31:38"
   >
   <variable name="mw_b555825a4a5700c35fa80780_windowflags">2</variable>
   <variable name="mw_b555825a4a5700c35fa80780_windowmode">0</variable>
   <variable name="mw_b555825a4a5700c35fa80780_windowx">0</variable>
   <variable name="mw_b555825a4a5700c35fa80780_windowy">0</variable>
   <variable name="winParams">winParams = {}
-  winParams.fontSize = 10
-  winParams.chatLineHeight = 15
+  winParams.hyperlinks = {}
+  winParams.textInset = 5
+  winParams.logMaxLines = 10000
   winParams.scrollBarWidth = 15
   winParams.titleHeight = 23.4
-  winParams.scrollDetailColor = 0
-  winParams.startx = 905
-  winParams.scrollBackgroundColor = 15263976
   winParams.scrollBarColor = 1118481
   winParams.borderColor = 15263976
-  winParams.textInset = 5
   winParams.showLines = 7
   winParams.backgroundColor = 0
-  winParams.starty = 123
-  winParams.init = true
-  winParams.maxLines = 10000
+  winParams.starty = 124
+  winParams.logTimestamps = 1
   winParams.dateFormat = "[%d %b %H:%M:%S] "
-  winParams.headerWidth = 56
-  winParams.height = 123
-  winParams.pluginId = "b555825a4a5700c35fa80780"
-  winParams.fontName = "Dina"
-  winParams.width = 905
+  winParams.barSize = 55.6
+  winParams.chatlines = {}
+    winParams.chatlines[1] = {}
+      winParams.chatlines[1][1] = {}
+        winParams.chatlines[1][1][1] = {}
+          winParams.chatlines[1][1][1].text = "08/20/16 14:31:15"
+          winParams.chatlines[1][1][1].length = 17
+          winParams.chatlines[1][1][1].textcolour = 12632256
+        winParams.chatlines[1][1][2] = {}
+          winParams.chatlines[1][1][2].textcolour = 16776960
+          winParams.chatlines[1][1][2].backcolour = 0
+          winParams.chatlines[1][1][2].length = 14
+          winParams.chatlines[1][1][2].text = "¡¾ÏÐÁÄ¡¿º®½­Ó°"
+          winParams.chatlines[1][1][2].style = 1
+        winParams.chatlines[1][1][3] = {}
+          winParams.chatlines[1][1][3].textcolour = 65280
+          winParams.chatlines[1][1][3].backcolour = 0
+          winParams.chatlines[1][1][3].length = 8
+          winParams.chatlines[1][1][3].text = "(Hangjy)"
+          winParams.chatlines[1][1][3].style = 1
+        winParams.chatlines[1][1][4] = {}
+          winParams.chatlines[1][1][4].textcolour = 16776960
+          winParams.chatlines[1][1][4].backcolour = 0
+          winParams.chatlines[1][1][4].length = 4
+          winParams.chatlines[1][1][4].text = ": hi"
+          winParams.chatlines[1][1][4].style = 1
+      winParams.chatlines[1][2] = true
+      winParams.chatlines[1][3] = {}
+  winParams.logTofile = 0
   winParams.y = 0
   winParams.x = 0
-  winParams.chatFontId = "fontb555825a4a5700c35fa80780"
-  winParams.chatFontHeight = 14
-  winParams.lastRefresh = 338246.35412389
+  winParams.lastRefresh = 355691.8829386
+  winParams.fontSize = 10
   winParams.headerFontId = "fontheadb555825a4a5700c35fa80780"
+  winParams.barPos = -17.2
+  winParams.totalSteps = 1
+  winParams.lineStart = 0
+  winParams.echo = 1
+  winParams.scrollBackgroundColor = 15263976
+  winParams.headerWidth = 56
+  winParams.chatLineHeight = 15
   winParams.headerFontHeight = 13
+  winParams.maxLines = 10000
+  winParams.scrollBarHeight = 55.6
+  winParams.chatFontId = "fontb555825a4a5700c35fa80780"
+  winParams.scrollDetailColor = 0
+  winParams.fontName = "Dina"
+  winParams.pluginId = "b555825a4a5700c35fa80780"
+  winParams.width = 903
+  winParams.keepscrolling = ""
+  winParams.logColourCodes = 1
+  winParams.rawChatlines = {}
+    winParams.rawChatlines[1] = {}
+      winParams.rawChatlines[1][1] = {}
+        winParams.rawChatlines[1][1][1] = {}
+          winParams.rawChatlines[1][1][1].text = "08/20/16 14:31:15"
+          winParams.rawChatlines[1][1][1].textcolour = 12632256
+          winParams.rawChatlines[1][1][1].length = 17
+        winParams.rawChatlines[1][1][2] = {}
+          winParams.rawChatlines[1][1][2].textcolour = 16776960
+          winParams.rawChatlines[1][1][2].backcolour = 0
+          winParams.rawChatlines[1][1][2].length = 14
+          winParams.rawChatlines[1][1][2].style = 1
+          winParams.rawChatlines[1][1][2].text = "¡¾ÏÐÁÄ¡¿º®½­Ó°"
+        winParams.rawChatlines[1][1][3] = {}
+          winParams.rawChatlines[1][1][3].textcolour = 65280
+          winParams.rawChatlines[1][1][3].backcolour = 0
+          winParams.rawChatlines[1][1][3].length = 8
+          winParams.rawChatlines[1][1][3].style = 1
+          winParams.rawChatlines[1][1][3].text = "(Hangjy)"
+        winParams.rawChatlines[1][1][4] = {}
+          winParams.rawChatlines[1][1][4].textcolour = 16776960
+          winParams.rawChatlines[1][1][4].backcolour = 0
+          winParams.rawChatlines[1][1][4].length = 4
+          winParams.rawChatlines[1][1][4].style = 1
+          winParams.rawChatlines[1][1][4].text = ": hi"
+      winParams.rawChatlines[1][2] = {}
+  winParams.chatFontHeight = 14
+  winParams.startx = 903
+  winParams.lineEnd = 0
+  winParams.height = 124
   winParams.textColor = 16777215
  return winParams</variable>
 </variables>

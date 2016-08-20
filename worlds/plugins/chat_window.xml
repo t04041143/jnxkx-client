@@ -11,20 +11,116 @@
             version="1.0">
         <description trim="y">
             江南侠客行聊天窗口
+
+            USAGE:
+
+            chats echo on    : 主窗口展示频道信息
+            chats echo off   : 主窗口不展示频道信息
+            chats show       : 显示聊天窗口
+            chats hide       : 隐藏聊天窗口
         </description>
     </plugin>
 
     <triggers>
+        <trigger enabled="y"
+                 match="^(&gt;)*( )*【闲聊】"
+                 omit_from_output="y"
+                 regexp="y"
+                 script="chats"
+                 sequence="100">
+        </trigger>
+
+        <trigger enabled="y"
+                 match="^(&gt;)*( )*(你告诉|.+告诉你|你回答|.+回答你)"
+                 omit_from_output="y"
+                 regexp="y"
+                 script="chats"
+                 sequence="100">
+        </trigger>
+
+        <trigger enabled="n"
+                 name="remort_auction"
+                 match="^(&gt;)*( )*【(后记|号外|江湖逸事|天灾人祸)】"
+                 regexp="y"
+                 script="untaggedInfo"
+                 omit_from_output="y"
+                 sequence="100"></trigger>
+
+        <trigger enabled="n"
+                 name="global_quest"
+                 match="^(&gt;)*( )*【(江湖谣传|塞外军情|鄱阳湖|洛阳城传闻|官府通告|任务|交易)】"
+                 regexp="y"
+                 script="untaggedInfo"
+                 omit_from_output="y"
+                 sequence="100"></trigger>
+
+        <trigger enabled="n"
+                 name="info"
+                 match="^(&gt;)*( )*【(江湖传闻|游戏更新|北侠公告| 天色 |北侠QQ群|拍卖|醒目|表决|算命先生)】"
+                 regexp="y"
+                 script="untaggedInfo"
+                 omit_from_output="y"
+                 sequence="100"></trigger>
+
+        <trigger enabled="n"
+                 name="raidinfo"
+                 match="^(&gt;)*( )*【(求助|新手)】"
+                 regexp="y"
+                 script="untaggedInfo"
+                 omit_from_output="y"
+                 sequence="100"></trigger>
+
+        <trigger enabled="n"
+                 name="claninfo"
+                 match="^(&gt;)*( )*【谣言】"
+                 regexp="y"
+                 script="untaggedInfo"
+                 omit_from_output="y"
+                 sequence="100"></trigger>
+
+        <trigger enabled="n"
+                 name="baowei_info"
+                 match="^(&gt;)*( )*【(大明|甲午战保|保卫|保卫襄阳|公告天下|密探回报|任务奖励)】"
+                 regexp="y"
+                 script="untaggedInfo"
+                 omit_from_output="y"
+                 sequence="100"></trigger>
     </triggers>
+
+    <aliases>
+
+        <alias script="updateEchoFlag"
+               match="^chats echo( on| off)?$"
+               enabled="y"
+               regexp="y"
+               sequence="100"
+               ignore_case="y"></alias>
+
+        <alias script="chatShow"
+               match="chats show"
+               enabled="y"
+               sequence="100"
+               ignore_case="y"></alias>
+
+        <alias script="chatHide"
+               match="chats hide"
+               enabled="y"
+               sequence="100"
+               ignore_case="y"></alias>
+    </aliases>
 
     <!--  Script  -->
     <script>
         <![CDATA[
 require "movewindow"
 require "serialize"
+require "copytable"
 
 ---------------------------------------------------------------------------------
 -- 参数初始化 开始
+
+-- 引入颜色处理相关函数，比如 StylesToColoursOneLine,strip_colours
+dofile(GetPluginInfo(GetPluginID(), 20) .. "jnxkx_colors.lua")
 
 -- 窗口默认参数
 local winParams = {
@@ -44,14 +140,33 @@ local winParams = {
     -- 颜色
     backgroundColor = GetNormalColour(1),
     textColor = 0xffffff,
-    scrollBarWidth = 15,
-    scrollBackgroundColor = 0xE8E8E8,
-    scrollBarColor = 0x111111,
-    scrollDetailColor = 0x000000,
     borderColor = 0xE8E8E8,
     -- 文本边缘的间距
     textInset = 5,
-    lastRefresh = 0
+    lastRefresh = 0,
+    -- 默认显示信息
+    echo = 1,
+    -- 是否输入日志文件
+    logTofile = 0,
+    logTimestamps = 1,
+    logColourCodes = 1,
+    -- 日志最大行数
+    logMaxLines = 10000,
+    chatlines = {},  -- 最新频道信息
+    rawChatlines = {},
+    lineStart = 0,
+    lineEnd = 0,
+    -- 滚动条相关
+    scrollBarWidth = 15,
+    scrollBarHeight = 0,
+    scrollBackgroundColor = 0xE8E8E8,
+    scrollBarColor = 0x111111,
+    scrollDetailColor = 0x000000,
+    keepscrolling = "",
+    barPos = "",
+    barSize = "",
+    totalSteps = "",
+    hyperlinks = {}
 }
 
 local windowInfo = null
@@ -65,15 +180,15 @@ local windowInfo = null
 -- 插件第一次安装
 function OnPluginInstall()
     -- 从上次保存的数据中恢复窗口参数
-    local paramsString = GetVariable("winParams")
+    --[[local paramsString = GetVariable("winParams")
     if paramsString ~= nil and paramsString ~= "" then
         winParams = assert(loadstring(paramsString))()
         winParams.init = true
     else
         -- 获得当前插件的唯一ID（24字符）
         winParams.pluginId = GetPluginID()
-    end
-
+    end]]--
+winParams.pluginId = GetPluginID()
     -- 创建假窗口，获取字体相关信息
     check(WindowCreate(winParams.pluginId, 0, 0, 1, 1, 0, 0, winParams.backgroundColor))
 
@@ -186,10 +301,6 @@ function drawWin(firstTime)
         0xEEEEEE, false)
     WindowLine(winParams.pluginId, 0, winParams.titleHeight - 1, winParams.width, winParams.titleHeight - 1, winParams.borderColor, 0 + 0x0200, 1)
 
-    -- 滚动条
-    WindowRectOp(winParams.pluginId, 2, winParams.width - winParams.scrollBarWidth, winParams.titleHeight, winParams.width, -winParams.scrollBarWidth, winParams.scrollBackgroundColor) -- scroll bar background
-    WindowRectOp(winParams.pluginId, 1, winParams.width - winParams.scrollBarWidth + 1, winParams.scrollBarWidth + winParams.titleHeight + 1, winParams.width - 1, winParams.height - (2 * winParams.scrollBarWidth) - 1, winParams.scrollDetailColor) -- scroll bar background inset rectangle
-
     -- 调整大小的图标
     WindowRectOp(winParams.pluginId, 2, winParams.width - winParams.scrollBarWidth, winParams.height - winParams.scrollBarWidth, 0, 0, winParams.scrollBackgroundColor)
     WindowLine(winParams.pluginId, winParams.width - winParams.scrollBarWidth + 1, winParams.height - 2, winParams.width - 2, winParams.height - winParams.scrollBarWidth + 1, 0xffffff, 0, 2)
@@ -203,6 +314,9 @@ function drawWin(firstTime)
 
     -- 绘制边框
     WindowRectOp(winParams.pluginId, 1, 0, 0, 0, 0, winParams.borderColor)
+
+    -- 绘制小配件
+    drawStuff()
 end
 
 function ResizeMoveCallback()
@@ -231,6 +345,353 @@ function ResizeReleaseCallback()
     --winParams.height = winParams.titleHeight +(line_height*(WINDOW_LINES-1))+3 -- snap height down to not have dead space after last line
     drawWin(true)
 end
+
+--- 处理频道信息
+function chats (name, line, wildcards, styles)
+   if (winParams.echo == 0) then
+      EnableTriggerGroup("end_gag", true)
+   end
+
+   if winParams.echo == 1 then
+      echoStyles(styles)
+   end
+
+   stampAndStore(styles)
+end
+
+function untaggedInfo (name, line, wildcards, styles)
+   if (winParams.echo == 0) then
+      EnableTriggerGroup("end_gag", true)
+   end
+
+   if winParams.echo == 1 then
+      echoStyles(styles)
+   end
+
+   stampAndStore(styles)
+end
+
+function chatShow (name, line, wildcards)
+   WindowShow( winParams.pluginId, true )
+   ColourNote ("yellow", "", "聊天窗口显示. 输入 'chats hide' 隐藏聊天窗口.")
+end -- function chat_show
+
+function chatHide (name, line, wildcards)
+   WindowShow( winParams.pluginId, false )
+   ColourNote ("yellow", "", "聊天窗口隐藏. 输入 'chats show' 重新显示聊天窗口.")
+end -- function chat_hide
+
+--- 在主屏输出信息
+function echoStyles (styles)
+   for _, v in ipairs(styles) do
+      ColourTell(RGBColourToName(v.textcolour), RGBColourToName(v.backcolour), v.text)
+   end -- for each style run
+   Note ("")  -- wrap up line
+end
+
+--- 更新输出标志
+function updateEchoFlag (name, line, wildcards)
+   if wildcards [1] == false then
+      winParams.echo = not winParams.echo
+   elseif wildcards [1]:lower () == " on" then
+      winParams.echo = 1
+   elseif wildcards [1]:lower () == " off" then
+      winParams.echo = 0
+   end
+
+   if winParams.echo == 1 then
+      ColourNote ("yellow", "", "主屏信息显示打开.")
+   else
+      ColourNote ("yellow", "", "主屏信息显示关闭.")
+   end
+end
+
+-- 存储聊天信息至缓冲区
+function stampAndStore(styles)
+    local localStyles = copytable.deep(styles)
+    local text = ""
+    local logText = ""
+
+    -- 如果时间格式有设定，那么需要先生成时间戳
+    if dateFormat ~= "" then
+        local tstamp = os.date(dateFormat)
+        local timestyle = {}
+        timestyle.text = tstamp
+        timestyle.length = #timestyle.text
+        timestyle.textcolour = 0xc0c0c0
+        -- 插入时间戳
+        table.insert(styles, 1, timestyle)
+    end
+
+    text = StylesToColoursOneLine(copytable.deep(styles), 1, 99999)
+
+    if (winParams.logTofile == 1) then
+        if (logTimestamps == 0) then
+            logText = StylesToColoursOneLine(localStyles, 1, 99999)
+        else
+            logText = text
+        end
+        if (logColourCodes == 0) then
+            logText = strip_colours(logText)
+        end
+        local f = assert(io.open(GetInfo(58):gsub("^\.\\", GetInfo(56)) .. GetInfo(2) .. "ChatLog.txt", "a+")) -- handle to chat log file
+        f:write(logText .. "\n") -- write to it
+        f:close() -- close that file now
+    end
+
+    local urls = findURLs(strip_colours(text))
+
+    -- 为了适应窗口大小调整，需要存储原始数据，如果大于最大行数限制，那么需要删除最早的一行
+    if #(winParams.rawChatlines) >= winParams.logMaxLines then
+        table.remove(winParams.rawChatlines, 1)
+    end
+    table.insert(winParams.rawChatlines, { [1] = styles, [2] = urls })
+
+    fillBuffer(styles, urls)
+    drawStuff()
+end
+
+--- 填充缓冲区
+function fillBuffer(rawstyles, rawurls)
+    local avail = winParams.width - (winParams.textInset * 2) - 9
+    local line_styles = {}
+    local beginning = true
+    local length = 0
+    local styles = copytable.deep(rawstyles)
+    local urls = copytable.deep(rawurls)
+
+    -- 提取函数，方便调用
+    local remove = table.remove
+    local insert = table.insert
+
+    -- Keep pulling out styles and trying to fit them on the current line
+    local foundbreak = false
+    while #styles > 0 do
+        -- break off the next style
+        local style = remove(styles, 1)
+
+        -- make this handle forced newlines like in the flickoff social
+        -- by splitting off and sticking the next part back into the
+        -- styles list for the next pass        
+        newline = string.find(style.text, "\n")
+        if newline then
+            insert(styles, 1, {
+                text = string.sub(style.text, newline + 1),
+                length = style.length - newline + 1,
+                textcolour = style.textcolour,
+                backcolour = style.backcolour
+            })
+            -- we're leaving in the newline characters here because we need to be
+            -- able to copy them later. I'll clean up the buggy visual later when
+            -- actually displaying the lines.
+            style.length = newline
+            style.text = string.sub(style.text, 1, newline)
+            foundbreak = true
+        end
+
+        -- 提取当前频道信息内容的长度
+        local text_width = WindowTextWidth(winParams.pluginId, winParams.chatFontId, style.text)
+
+        -- if it fits, copy whole style in
+        if text_width <= avail then
+            insert(line_styles, style)
+            length = length + style.length
+            avail = avail - text_width
+            if foundbreak then
+                avail = 0
+            end
+        else -- otherwise, have to split style
+        -- look for trailing space (work backwards). remember where space is
+        local col = style.length - 1
+        local split_col
+        -- keep going until out of columns
+        while col > 1 do
+            text_width = WindowTextWidth(winParams.pluginId, winParams.chatFontId, style.text:sub(1, col))
+            if text_width <= avail then
+                if not split_col then
+                    local _, b = string.gsub(style.text:sub(1, col), "[\x00-\xff !%%'()*+,-./yz{|}~]", "")
+                    if b % 2 then
+                        split_col = col - 1 -- in case no space found, this is where we can split
+                    else
+                        split_col = col -- in case no space found, this is where we can split
+                    end
+                end -- if
+                -- see if space here
+                if style.text:sub(col, col) == " " then
+                    split_col = col
+                    break
+                end -- if space
+            end -- if will now fit
+            col = col - 1
+        end -- while
+
+        if split_col then
+            -- if we found a place to split, use old style and truncate it.
+            -- Also stick the rest back with the same styling back into the styles list
+            insert(line_styles, style)
+            local style_copy = copytable.shallow(style)
+            style.text = style.text:sub(1, split_col)
+            style.length = split_col
+            style_copy.text = style_copy.text:sub(split_col + 1)
+            style_copy.length = #style_copy.text
+            insert(styles, 1, style_copy)
+            length = length + style.length
+        elseif next(line_styles) == nil then
+            -- Actually, I don't think this can ever happen. -Fiendish
+            insert(line_styles, style)
+            length = length + style.length
+        else
+            -- if we're about to start a new style and the
+            -- line is completely full, put it back in the list for later
+            insert(styles, 1, style)
+        end -- if
+        avail = 0 -- now we need to wrap
+        end -- if could/not fit whole thing in
+
+        -- out of styles or out of room? add a line for what we have so far
+        if #styles == 0 or avail <= 0 then
+            if #winParams.chatlines >= winParams.logMaxLines then
+                -- if the history buffer is full then remove the oldest line
+                remove(winParams.chatlines, 1)
+                winParams.lineStart = winParams.lineStart - 1
+                winParams.lineEnd = winParams.lineEnd - 1
+            end -- buffer full
+
+            local line_urls = {}
+            while urls[1] and urls[1].stop <= length do
+                insert(line_urls, remove(urls, 1))
+            end
+            if urls[1] and urls[1].start < length then
+                local url = copytable.deep(urls[1])
+                url.stop = length + 1
+                urls[1].stop = urls[1].stop - 1
+                urls[1].old = true
+                insert(line_urls, url)
+            end
+            for i, v in ipairs(urls) do
+                urls[i].start = urls[i].start - length
+                urls[i].stop = urls[i].stop - length
+                if urls[i].start <= 1 then
+                    urls[i].start = 1
+                    urls[i].stop = urls[i].stop + 1
+                end
+            end
+
+            add_line(line_styles, beginning, line_urls)
+
+            avail = winParams.width - (winParams.textInset * 2) - 9
+            line_styles = {}
+            length = 0
+            beginning = false
+        end -- line full
+    end -- while we still have styles over
+end
+
+function drawStuff()
+    -- 滚动条
+    WindowRectOp(winParams.pluginId, 2, winParams.width - winParams.scrollBarWidth, winParams.titleHeight, winParams.width, -winParams.scrollBarWidth, winParams.scrollBackgroundColor) -- scroll bar background
+    WindowRectOp(winParams.pluginId, 1, winParams.width - winParams.scrollBarWidth + 1, winParams.scrollBarWidth + winParams.titleHeight + 1, winParams.width - 1, winParams.height - (2 * winParams.scrollBarWidth) - 1, winParams.scrollDetailColor) -- scroll bar background inset rectangle
+
+    -- 
+    local points = null
+    if (winParams.keepscrolling == "up") then
+        -- draw top scroll button pressed
+        WindowRectOp(winParams.pluginId, 5, (winParams.width - winParams.scrollBarWidth), winParams.titleHeight, 0, winParams.titleHeight + winParams.scrollBarWidth, 10, 15 + 0x800) -- up arrow pushed
+        points = string.format("%i,%i,%i,%i,%i,%i", (winParams.width - winParams.scrollBarWidth) + 3, winParams.titleHeight + 9, (winParams.width - winParams.scrollBarWidth) + 7, winParams.titleHeight + 5, (winParams.width - winParams.scrollBarWidth) + 11, winParams.titleHeight + 9)
+        WindowPolygon(winParams.pluginId, points,
+            0x000000, 0, 1, -- pen (solid, winParams.width 1)
+            0x000000, 0, -- brush (solid)
+            true, -- close
+            false) -- alt fill
+    else
+        -- draw top scroll button unpressed
+        WindowRectOp(winParams.pluginId, 5, (winParams.width - winParams.scrollBarWidth), winParams.titleHeight, winParams.width, winParams.titleHeight + winParams.scrollBarWidth, 5, 15 + 0x800)
+        points = string.format("%i,%i,%i,%i,%i,%i", (winParams.width - winParams.scrollBarWidth) + 3, winParams.titleHeight + 9, (winParams.width - winParams.scrollBarWidth) + 7, winParams.titleHeight + 5, (winParams.width - winParams.scrollBarWidth) + 11, winParams.titleHeight + 9)
+        WindowPolygon(winParams.pluginId, points,
+            0x000000, 0, 1, -- pen (solid, winParams.width 1)
+            0x000000, 0, --brush (solid)
+            true, --close
+            false) --alt fill
+    end
+
+    if (keepscrolling == "down") then
+        -- draw bottom scroll button pressed
+        WindowRectOp(winParams.pluginId, 5, (winParams.width - winParams.scrollBarWidth), winParams.height - (winParams.scrollBarWidth * 2), 0, winParams.height - winParams.scrollBarWidth - 1, 10, 15 + 0x800)
+        points = string.format("%i,%i,%i,%i,%i,%i", (winParams.width - winParams.scrollBarWidth) + 3, (winParams.height - winParams.scrollBarWidth) - 11, (winParams.width - winParams.scrollBarWidth) + 7, (winParams.height - winParams.scrollBarWidth) - 7, (winParams.width - winParams.scrollBarWidth) + 11, (winParams.height - winParams.scrollBarWidth) - 11)
+        WindowPolygon(winParams.pluginId, points,
+            0x000000, 0, 1, -- pen (solid, winParams.width 1)
+            0x000000, 0, -- brush (solid)
+            true, -- close
+            false) -- alt fill
+    else
+        -- draw bottom scroll button unpressed
+        WindowRectOp(winParams.pluginId, 5, (winParams.width - winParams.scrollBarWidth), winParams.height - (winParams.scrollBarWidth * 2), winParams.width, winParams.height - winParams.scrollBarWidth, 5, 15 + 0x800)
+        points = string.format("%i,%i,%i,%i,%i,%i", (winParams.width - winParams.scrollBarWidth) + 3, (winParams.height - winParams.scrollBarWidth) - 11, (winParams.width - winParams.scrollBarWidth) + 7, (winParams.height - winParams.scrollBarWidth) - 7, (winParams.width - winParams.scrollBarWidth) + 11, (winParams.height - winParams.scrollBarWidth) - 11)
+        WindowPolygon(winParams.pluginId, points,
+            0x000000, 0, 1, -- pen (solid, winParams.width 1)
+            0x000000, 0, --brush (solid)
+            true, --close
+            false) --alt fill
+    end
+
+    -- The scrollbar position indicator
+    winParams.totalSteps = #(winParams.chatlines)
+    if (winParams.totalSteps <= winParams.showLines - 1) then
+        winParams.totalSteps = 1
+    end
+    winParams.scrollBarHeight = (winParams.height - (3 * winParams.scrollBarWidth) - winParams.titleHeight)
+    if (not dragscrolling) then
+        local stepNum = winParams.lineStart - 1
+        winParams.barPos = winParams.scrollBarWidth + winParams.titleHeight + ((winParams.scrollBarHeight / winParams.totalSteps) * stepNum)
+        winParams.barSize = (winParams.scrollBarHeight / math.max(winParams.showLines - 1, winParams.totalSteps)) * (winParams.showLines - 1)
+        if winParams.barSize < 10 then
+            winParams.barSize = 10
+        end
+        if winParams.barPos + winParams.barSize > winParams.scrollBarWidth + winParams.titleHeight + winParams.scrollBarHeight then
+            winParams.barPos = winParams.scrollBarWidth + winParams.titleHeight + winParams.scrollBarHeight - winParams.barSize
+        end
+        WindowAddHotspot(winParams.pluginId, "scroller", (winParams.width - winParams.scrollBarWidth), winParams.barPos, winParams.width, winParams.barPos + winParams.barSize, "MouseOver", "CancelMouseOver", "MouseDown", "CancelMouseDown", "MouseUp", "", 1, 0)
+        WindowDragHandler(winParams.pluginId, "scroller", "ScrollerMoveCallback", "ScrollerReleaseCallback", 0)
+    end
+    WindowRectOp(winParams.pluginId, 5, (winParams.width - winParams.scrollBarWidth), winParams.barPos, winParams.width, winParams.barPos + winParams.barSize, 5, 15 + 0x800) -- scrollbar position indicator
+
+    -- reset hyperlinks if the text moves
+    for k, v in pairs(winParams.hyperlinks) do
+        WindowDeleteHotspot(winParams.pluginId, k)
+    end
+    winParams.hyperlinks = {}
+
+    -- writeLines()
+end
+
+-- Returns an array {start, end, text}
+function findURLs(text)
+   local URLs = {}
+   local start, position = 0, 0
+   -- "rex" is a table supplied by MUSHclient for PCRE functionality.
+   local re = rex.new("(?:https?://|mailto:)\\S*[\\w/=@#\\-\\?]")
+   re:gmatch(text,
+      function (link, _)
+         start, position = string.find(text, link, position, true)
+         table.insert(URLs, {start=start, stop=position, text=link})
+      end
+   )
+   return URLs
+end
+
+function add_line ( line, is_beginning_of_message, urls )
+   -- add new line
+   table.insert(winParams.chatlines, {[1]=line, [2]=is_beginning_of_message, [3]=urls} )
+   -- advance the count
+   if #(winParams.chatlines) >= winParams.showLines then
+      winParams.lineStart = winParams.lineStart + 1
+   end -- if
+   
+   if #(winParams.chatlines) > 1 then
+      winParams.lineEnd = winParams.lineEnd + 1
+   end -- if
+end -- add_line
+
 
 -- 函数定义 结束
 ---------------------------------------------------------------------------------
