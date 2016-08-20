@@ -196,19 +196,7 @@ function OnPluginInstall()
     -- 创建假窗口，获取字体相关信息
     check(WindowCreate(winParams.pluginId, 0, 0, 1, 1, 0, 0, winParams.backgroundColor))
 
-    -- 字体库
-
-    --[[if fonts["Dina"] then
-        winParams.fontSize = 8
-        winParams.fontName = "Dina" -- the actual font
-    elseif fonts["Courier New"] then
-        winParams.fontSize = 8
-        winParams.fontName = "Courier New"
-    else
-        winParams.fontSize = 8
-        winParams.fontName = "Lucida Console"
-    end]]--"华文中宋"
-
+    -- 设置字体
     winParams.fontSize = 10
     winParams.fontName = "华文中宋"
 
@@ -270,10 +258,9 @@ function drawWin(firstTime)
             "textarea", 1,
             winParams.titleHeight, winParams.width - winParams.scrollBarWidth - 1, winParams.height - 3,
             "", "", "MouseDown", "CancelMouseDown", "MouseUp", "", 2, 0)
-        --WindowDragHandler(winParams.pluginId, "textarea", "TextareaMoveCallback", "TextareaReleaseCallback", 0x10)
-
-        --WindowScrollwheelHandler(winParams.pluginId, "textarea", "wheel_move")
-
+        -- 聊天信息轮滚动事件
+        WindowDragHandler(winParams.pluginId, "textarea", "TextareaMoveCallback", "TextareaReleaseCallback", 0x10)
+        WindowScrollwheelHandler(winParams.pluginId, "textarea", "wheelMove")
 
         -- 增加移动窗口的响应区
         movewindow.add_drag_handler(winParams.pluginId, 0, 0, 0, winParams.titleHeight)
@@ -350,6 +337,28 @@ function ResizeReleaseCallback()
     --winParams.height = winParams.titleHeight +(line_height*(WINDOW_LINES-1))+3 -- snap height down to not have dead space after last line
     drawWin(true)
 end
+
+function TextareaMoveCallback(flags, hotspot_id)
+end
+
+function TextareaReleaseCallback(flags, hotspot_id)
+end
+
+function wheelMove (flags, hotspot_id)
+   if bit.band(flags, 0x100) ~= 0 then
+      if winParams.lineStart < #winParams.chatlines-winParams.showLines+2 then
+         -- down
+         winParams.lineStart = math.max(1, math.min(#winParams.chatlines-winParams.showLines+2, winParams.lineStart+3))
+         winParams.lineEnd = math.min(#winParams.chatlines, winParams.lineStart+winParams.showLines-2)
+         drawStuff()
+      end
+   elseif winParams.lineStart > 1 then
+      -- up
+      winParams.lineStart = math.max(1, winParams.lineStart-3)
+      winParams.lineEnd = math.min(#winParams.chatlines, winParams.lineStart+winParams.showLines-2)
+      drawStuff()
+  end -- if
+end -- wheel_move
 
 --- 处理频道信息
 function chats (name, line, wildcards, styles)

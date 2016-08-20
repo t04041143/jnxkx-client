@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE muclient>
-<!-- Saved on 2016Äê °ËÔÂ 20ÈÕ ÐÇÆÚÁù, ÏÂÎç 4:07 -->
+<!-- Saved on 2016Äê °ËÔÂ 20ÈÕ ÐÇÆÚÁù, ÏÂÎç 4:21 -->
 <!-- MuClient version 4.94 -->
 <!-- Written by Nick Gammon -->
 <!-- Home Page: http://www.mushclient.com/ -->
@@ -8,7 +8,7 @@
 <world
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:07:21"
+   date_saved="2016-08-20 16:21:45"
 
    auto_say_override_prefix="-"
    auto_say_string="say "
@@ -114,7 +114,7 @@
 <triggers
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:07:21"
+   date_saved="2016-08-20 16:21:45"
   >
   <trigger
    lines_to_match="2"
@@ -133,7 +133,7 @@
 <aliases
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:07:21"
+   date_saved="2016-08-20 16:21:45"
   >
 </aliases>
 
@@ -142,7 +142,7 @@
 <timers
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:07:21"
+   date_saved="2016-08-20 16:21:45"
   >
 </timers>
 
@@ -151,7 +151,7 @@
 <macros
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:07:21"
+   date_saved="2016-08-20 16:21:45"
   >
 
   <macro name="up" type="send_now" >
@@ -245,7 +245,7 @@
 <variables
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:07:21"
+   date_saved="2016-08-20 16:21:45"
   >
 </variables>
 
@@ -254,7 +254,7 @@
 <colours
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:07:21"
+   date_saved="2016-08-20 16:21:45"
   >
 
 <ansi>
@@ -311,7 +311,7 @@
 <keypad
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:07:21"
+   date_saved="2016-08-20 16:21:45"
   >
 
   <key name="0" >
@@ -425,7 +425,7 @@
 <printing
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:07:21"
+   date_saved="2016-08-20 16:21:45"
   >
 
 <ansi>
