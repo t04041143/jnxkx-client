@@ -109,22 +109,8 @@ function OnPluginInstall()
     WindowCreate(winParams.pluginId, 600, 600, 1, 1, 0, 0, winParams.backgroundColour)
 
     -- 字体库
-    local fonts = utils.getfontfamilies()
-    if not fonts.Dina then
-        AddFont(GetInfo(66) .. "\\Dina.fon")
-        fonts = utils.getfontfamilies()
-    end
-
-    if fonts["Dina"] then
-        winParams.fontSize = 10
-        winParams.fontName = "Dina" -- the actual font
-    elseif fonts["Courier New"] then
-        winParams.fontSize = 9
-        winParams.fontName = "Courier New"
-    else
-        winParams.fontSize = 9
-        winParams.fontName = "Lucida Console"
-    end
+    winParams.fontSize = 11
+    winParams.fontName = "华文中宋"
 
     -- 设置窗体字体
     WindowFont(winParams.pluginId, winParams.fontId, winParams.fontName, winParams.fontSize, false, false, false, false)

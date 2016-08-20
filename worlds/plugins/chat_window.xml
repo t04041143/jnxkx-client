@@ -136,7 +136,7 @@ local winParams = {
     -- date_format = "[%d %b %I:%M:%S%p] " -- [30 Aug 01:20:12PM] date and time 12 hour
     -- date_format = "[%H:%M:%S] "         -- [13:29:08]          time 24 hour
     -- date_format = "[%X] "               -- [1:22:06 PM]        time 12 hour
-    dateFormat = "[%d %b %H:%M:%S] ",
+    dateFormat = "[%H:%M:%S] ",
     -- 颜色
     backgroundColor = GetNormalColour(1),
     textColor = 0xffffff,
@@ -192,18 +192,13 @@ function OnPluginInstall()
         -- 获得当前插件的唯一ID（24字符）
         winParams.pluginId = GetPluginID()
     end]]--
-winParams.pluginId = GetPluginID()
+    winParams.pluginId = GetPluginID()
     -- 创建假窗口，获取字体相关信息
     check(WindowCreate(winParams.pluginId, 0, 0, 1, 1, 0, 0, winParams.backgroundColor))
 
     -- 字体库
-    local fonts = utils.getfontfamilies()
-    if not fonts.Dina then
-        AddFont(GetInfo(66) .. "\\Dina.fon")
-        fonts = utils.getfontfamilies()
-    end
 
-    if fonts["Dina"] then
+    --[[if fonts["Dina"] then
         winParams.fontSize = 8
         winParams.fontName = "Dina" -- the actual font
     elseif fonts["Courier New"] then
@@ -212,7 +207,10 @@ winParams.pluginId = GetPluginID()
     else
         winParams.fontSize = 8
         winParams.fontName = "Lucida Console"
-    end
+    end]]--"华文中宋"
+
+    winParams.fontSize = 10
+    winParams.fontName = "华文中宋"
 
     winParams.chatFontId = "font" .. winParams.pluginId
     winParams.headerFontId = "fonthead" .. winParams.pluginId
@@ -420,8 +418,8 @@ function stampAndStore(styles)
     local logText = ""
 
     -- 如果时间格式有设定，那么需要先生成时间戳
-    if dateFormat ~= "" then
-        local tstamp = os.date(dateFormat)
+    if winParams.dateFormat ~= "" then
+        local tstamp = os.date(winParams.dateFormat)
         local timestyle = {}
         timestyle.text = tstamp
         timestyle.length = #timestyle.text
