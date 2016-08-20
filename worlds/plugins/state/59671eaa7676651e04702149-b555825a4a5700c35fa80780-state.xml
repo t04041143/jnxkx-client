@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE muclient>
-<!-- Saved on 2016Äê °ËÔÂ 19ÈÕ ÐÇÆÚÎå, ÏÂÎç 6:13 -->
+<!-- Saved on 2016Äê °ËÔÂ 20ÈÕ ÐÇÆÚÁù, ÉÏÎç 9:45 -->
 <!-- MuClient version 4.94 -->
 <!-- Written by Nick Gammon -->
 <!-- Home Page: http://www.mushclient.com/ -->
@@ -14,7 +14,7 @@
 <variables
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-19 18:13:08"
+   date_saved="2016-08-20 09:45:57"
   >
   <variable name="mw_b555825a4a5700c35fa80780_windowflags">2</variable>
   <variable name="mw_b555825a4a5700c35fa80780_windowmode">0</variable>
@@ -26,29 +26,29 @@
   winParams.scrollBarWidth = 15
   winParams.titleHeight = 23.4
   winParams.scrollDetailColor = 0
-  winParams.headerFontHeight = 13
+  winParams.startx = 905
   winParams.scrollBackgroundColor = 15263976
   winParams.scrollBarColor = 1118481
   winParams.borderColor = 15263976
-  winParams.backgroundColor = 0
+  winParams.textInset = 5
   winParams.showLines = 7
-  winParams.startx = 904
-  winParams.starty = 125
-  winParams.lastRefresh = 282577.27551589
+  winParams.backgroundColor = 0
+  winParams.starty = 123
+  winParams.init = true
   winParams.maxLines = 10000
   winParams.dateFormat = "[%d %b %H:%M:%S] "
   winParams.headerWidth = 56
-  winParams.headerFontId = "fontheadb555825a4a5700c35fa80780"
-  winParams.y = 0
-  winParams.fontName = "Dina"
-  winParams.width = 904
+  winParams.height = 123
   winParams.pluginId = "b555825a4a5700c35fa80780"
+  winParams.fontName = "Dina"
+  winParams.width = 905
+  winParams.y = 0
   winParams.x = 0
   winParams.chatFontId = "fontb555825a4a5700c35fa80780"
   winParams.chatFontHeight = 14
-  winParams.height = 125
-  winParams.init = true
-  winParams.textInset = 5
+  winParams.lastRefresh = 338246.35412389
+  winParams.headerFontId = "fontheadb555825a4a5700c35fa80780"
+  winParams.headerFontHeight = 13
   winParams.textColor = 16777215
  return winParams</variable>
 </variables>
