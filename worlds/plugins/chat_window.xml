@@ -197,7 +197,7 @@ function OnPluginInstall()
     check(WindowCreate(winParams.pluginId, 0, 0, 1, 1, 0, 0, winParams.backgroundColor))
 
     -- 设置字体
-    winParams.fontSize = 10
+    winParams.fontSize = 11
     winParams.fontName = "华文中宋"
 
     winParams.chatFontId = "font" .. winParams.pluginId
