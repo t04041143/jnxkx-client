@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE muclient>
-<!-- Saved on 2016Äê °ËÔÂ 20ÈÕ ÐÇÆÚÁù, ÏÂÎç 4:04 -->
+<!-- Saved on 2016Äê °ËÔÂ 20ÈÕ ÐÇÆÚÁù, ÏÂÎç 4:07 -->
 <!-- MuClient version 4.94 -->
 <!-- Written by Nick Gammon -->
 <!-- Home Page: http://www.mushclient.com/ -->
@@ -8,7 +8,7 @@
 <world
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:04:59"
+   date_saved="2016-08-20 16:07:21"
 
    auto_say_override_prefix="-"
    auto_say_string="say "
@@ -114,7 +114,7 @@
 <triggers
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:04:59"
+   date_saved="2016-08-20 16:07:21"
   >
   <trigger
    lines_to_match="2"
@@ -133,7 +133,7 @@
 <aliases
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:04:59"
+   date_saved="2016-08-20 16:07:21"
   >
 </aliases>
 
@@ -142,7 +142,7 @@
 <timers
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:04:59"
+   date_saved="2016-08-20 16:07:21"
   >
 </timers>
 
@@ -151,7 +151,7 @@
 <macros
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:04:59"
+   date_saved="2016-08-20 16:07:21"
   >
 
   <macro name="up" type="send_now" >
@@ -245,7 +245,7 @@
 <variables
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:04:59"
+   date_saved="2016-08-20 16:07:21"
   >
 </variables>
 
@@ -254,7 +254,7 @@
 <colours
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:04:59"
+   date_saved="2016-08-20 16:07:21"
   >
 
 <ansi>
@@ -311,7 +311,7 @@
 <keypad
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:04:59"
+   date_saved="2016-08-20 16:07:21"
   >
 
   <key name="0" >
@@ -425,7 +425,7 @@
 <printing
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:04:59"
+   date_saved="2016-08-20 16:07:21"
   >
 
 <ansi>
@@ -454,6 +454,6 @@
 <include name="fullme_code.xml" plugin="y" />
 <include name="repaint_buffer.xml" plugin="y" />
 <include name="main_window.xml" plugin="y" />
-<include name="chat_window.xml" plugin="y" />
 <include name="hp_status_bars.xml" plugin="y" />
+<include name="chat_window.xml" plugin="y" />
 </muclient>

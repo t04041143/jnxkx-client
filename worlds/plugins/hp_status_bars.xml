@@ -59,15 +59,22 @@ require "serialize"
 -- 窗口默认参数
 local winParams = {
     pluginId,
-    backgroundColour = 0x000000,    borderColor = 0xcccccc,
-    width = 1137,    height = 0,
+    backgroundColour = 0x000000,
+    borderColor = 0xcccccc,
+    width = 1137,
+    height = 0,
     lineHeight = 0,
-    x = 0,    y = 552,
-    startx = 0,    starty = 0,
+    x = 0,
+    y = 552,
+    startx = 0,
+    starty = 0,
     resizeTagSize = 10,
     minWidth = 40,
-    leftMargin = 10,    topMargin = 5,
-    fontId = "f1",    fontName = "Arial",    fontSize = "8",
+    leftMargin = 10,
+    topMargin = 5,
+    fontId = "f1",
+    fontName = "Arial",
+    fontSize = "8",
     windowInfo = null,
     lastRefresh = 0,
 }
@@ -92,7 +99,7 @@ local status = {
 ---------------------------------------------------------------------------------
 -- 插件需要响应的事件 开始
 
----- 插件第一次安装
+--- - 插件第一次安装
 function OnPluginInstall()
     -- 从上次保存的数据中恢复窗口参数
     local paramsString = GetVariable("winParams")
@@ -150,7 +157,7 @@ end
 function OnPluginSaveState()
     movewindow.save_state(winParams.pluginId)
     -- 序列化winParams
-    SetVariable("winParams", serialize.save("winParams",winParams).. "\n return winParams")
+    SetVariable("winParams", serialize.save("winParams", winParams) .. "\n return winParams")
 end
 
 --- - 插件启用
@@ -273,11 +280,11 @@ function drawWin(firstTime)
         -- everything has already been made
         -- just move them back into place
         WindowResize(winParams.pluginId, winParams.effectiveWidth, winParams.height, winParams.backgroundColour)
-        WindowMoveHotspot(winParams.pluginId, "resize", winParams.effectiveWidth-winParams.resizeTagSize, winParams.height-winParams.resizeTagSize, winParams.effectiveWidth, winParams.height)
+        WindowMoveHotspot(winParams.pluginId, "resize", winParams.effectiveWidth - winParams.resizeTagSize, winParams.height - winParams.resizeTagSize, winParams.effectiveWidth, winParams.height)
     end
 
-            -- 显示窗口
-        WindowShow(winParams.pluginId, true)
+    -- 显示窗口
+    WindowShow(winParams.pluginId, true)
 
     -- Add the drag handler so they can move the window around
     movewindow.add_drag_handler(winParams.pluginId, 0, 0, 0, 0)
@@ -377,7 +384,7 @@ end
 -- 函数定义 结束
 ---------------------------------------------------------------------------------
 
-]]>
+        ]]>
     </script>
 
 
