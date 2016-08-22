@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE muclient>
-<!-- Saved on 2016Äê °ËÔÂ 20ÈÕ ÐÇÆÚÁù, ÏÂÎç 4:41 -->
+<!-- Saved on 2016Äê °ËÔÂ 22ÈÕ ÐÇÆÚÒ», ÏÂÎç 7:45 -->
 <!-- MuClient version 4.94 -->
 <!-- Written by Nick Gammon -->
 <!-- Home Page: http://www.mushclient.com/ -->
@@ -8,7 +8,7 @@
 <world
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:41:57"
+   date_saved="2016-08-22 19:45:31"
 
    auto_say_override_prefix="-"
    auto_say_string="say "
@@ -22,6 +22,7 @@
    output_font_name="ËÎÌå"
    script_editor="E:\MUSHClient\SciTE\SciTE.exe"
    script_editor_argument="%file"
+   script_filename="D:\Development\Tools\Game\jnxkx\jnxkx-client\worlds\plugins\newbie.lua"
    script_language="Lua"
    script_prefix="\"
    site="112.126.83.105"
@@ -114,17 +115,84 @@
 <triggers
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:41:57"
+   date_saved="2016-08-22 19:45:31"
   >
   <trigger
-   lines_to_match="2"
-   match="^[&gt; ]*#(.+),(.+),(\d+),(\d+),(\d+),(\d+)\n#(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)"
-   omit_from_output="y"
+   enabled="y"
+   match="^[&gt; ]* ÄãÊÇÒ»Î».*ËêµÄÎ´»é(.*)ÐÔÈËÀà£¬"
+   regexp="y"
+   send_to="12"
+   sequence="100"
+  >
+  <send>player.setGender("%1")</send>
+  </trigger>
+  <trigger
+   enabled="y"
+   match="^[&gt; ]*Ä¿Ç°È¨ÏÞ£º"
+   regexp="y"
+   send_to="10"
+   sequence="100"
+  >
+  <send>sc;quest</send>
+  </trigger>
+  <trigger
+   enabled="y"
+   match="^[&gt; ]*Äã¼ñÆðÒ»¸öºùÂ«"
+   regexp="y"
+   send_to="10"
+   sequence="100"
+  >
+  <send>fill hulu;drink hulu</send>
+  </trigger>
+  <trigger
+   enabled="y"
+   match="^[&gt; ]*Äã¿ÉÒÔÓÃquestÃüÁîÁË½âÄãÏÖÔÚÓ¦¸Ã×öÐ©Ê²Ã´¡£"
    regexp="y"
    sequence="100"
-   lowercase_wildcard="y"
   >
-  <send>hi</send>
+  <send>quest</send>
+  </trigger>
+  <trigger
+   enabled="y"
+   match="^[&gt; ]*ÄãÀ´µ½Õâ¸öÄ°ÉúµÄµØ·½£¬Ç°Í¾Î´²·£¬ÇëÏÈÓÃhpÃüÁî¼ì²é×Ô¼ºµÄÉíÌåÇé¿ö"
+   regexp="y"
+   sequence="100"
+  >
+  <send>hp</send>
+  </trigger>
+  <trigger
+   enabled="y"
+   match="^[&gt; ]*ÄãÄÃÆðÒ°¹ûÒ§ÁË¼¸¿Ú¡£"
+   regexp="y"
+   sequence="100"
+  >
+  <send>eat ye guo</send>
+  </trigger>
+  <trigger
+   enabled="y"
+   match="^[&gt; ]*ÄãÒÑ¾­³ÔÌ«±¥ÁË£¬ÔÙÒ²Èû²»ÏÂÈÎºÎ¶«Î÷ÁË¡£"
+   regexp="y"
+   sequence="100"
+  >
+  <send>l river</send>
+  </trigger>
+  <trigger
+   enabled="y"
+   match="^[&gt; ]*Ê¹ÓÃlook river»òÕßl riverÃüÁî£¬¸ù¾ÝÌáÊ¾ÏÈÈÃ×Ô¼ººÈ±¥³Ô×ã¡£µØÉÏµÄÒ°¹ûÒ²¿ÉÒÔ¼ñÆðÀ´³ä¼¢¡£"
+   regexp="y"
+   send_to="12"
+   sequence="100"
+  >
+  <send>player.eatYeguo()</send>
+  </trigger>
+  <trigger
+   enabled="y"
+   match="^[&gt; ]*ÕâÊÇÒ»ÌõÇå³ºµÄÐ¡Ïª£¬Ò²ÐíÄã¿ÉÒÔÄÃÆðµØÉÏµÄºùÂ«"
+   regexp="y"
+   send_to="12"
+   sequence="100"
+  >
+  <send>player.getHulu()</send>
   </trigger>
 </triggers>
 
@@ -133,7 +201,7 @@
 <aliases
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:41:57"
+   date_saved="2016-08-22 19:45:31"
   >
 </aliases>
 
@@ -142,7 +210,7 @@
 <timers
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:41:57"
+   date_saved="2016-08-22 19:45:31"
   >
 </timers>
 
@@ -151,7 +219,7 @@
 <macros
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:41:57"
+   date_saved="2016-08-22 19:45:31"
   >
 
   <macro name="up" type="send_now" >
@@ -245,7 +313,7 @@
 <variables
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:41:57"
+   date_saved="2016-08-22 19:45:31"
   >
 </variables>
 
@@ -254,7 +322,7 @@
 <colours
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:41:57"
+   date_saved="2016-08-22 19:45:31"
   >
 
 <ansi>
@@ -311,7 +379,7 @@
 <keypad
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:41:57"
+   date_saved="2016-08-22 19:45:31"
   >
 
   <key name="0" >
@@ -425,7 +493,7 @@
 <printing
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-20 16:41:57"
+   date_saved="2016-08-22 19:45:31"
   >
 
 <ansi>
