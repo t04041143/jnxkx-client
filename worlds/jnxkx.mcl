@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE muclient>
-<!-- Saved on 2016Äê °ËÔÂ 22ÈÕ ÐÇÆÚÒ», ÏÂÎç 9:58 -->
+<!-- Saved on 2016Äê °ËÔÂ 23ÈÕ ÐÇÆÚ¶þ, ÏÂÎç 7:45 -->
 <!-- MuClient version 4.94 -->
 <!-- Written by Nick Gammon -->
 <!-- Home Page: http://www.mushclient.com/ -->
@@ -8,7 +8,7 @@
 <world
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-22 21:58:01"
+   date_saved="2016-08-23 19:45:04"
 
    auto_say_override_prefix="-"
    auto_say_string="say "
@@ -47,7 +47,6 @@
    display_my_input="y"
    echo_colour="2"
    echo_hyperlink_in_output_window="y"
-   edit_script_with_notepad="y"
    enable_aliases="y"
    enable_beeps="y"
    enable_command_stack="y"
@@ -116,7 +115,7 @@
 <triggers
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-22 21:58:01"
+   date_saved="2016-08-23 19:45:04"
   >
   <trigger
    enabled="y"
@@ -267,7 +266,7 @@
 <aliases
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-22 21:58:01"
+   date_saved="2016-08-23 19:45:04"
   >
 </aliases>
 
@@ -276,7 +275,7 @@
 <timers
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-22 21:58:01"
+   date_saved="2016-08-23 19:45:04"
   >
 </timers>
 
@@ -285,7 +284,7 @@
 <macros
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-22 21:58:01"
+   date_saved="2016-08-23 19:45:04"
   >
 
   <macro name="up" type="send_now" >
@@ -379,7 +378,7 @@
 <variables
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-22 21:58:01"
+   date_saved="2016-08-23 19:45:04"
   >
 </variables>
 
@@ -388,7 +387,7 @@
 <colours
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-22 21:58:01"
+   date_saved="2016-08-23 19:45:04"
   >
 
 <ansi>
@@ -445,7 +444,7 @@
 <keypad
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-22 21:58:01"
+   date_saved="2016-08-23 19:45:04"
   >
 
   <key name="0" >
@@ -559,7 +558,7 @@
 <printing
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-22 21:58:01"
+   date_saved="2016-08-23 19:45:04"
   >
 
 <ansi>
@@ -590,4 +589,5 @@
 <include name="main_window.xml" plugin="y" />
 <include name="hp_status_bars.xml" plugin="y" />
 <include name="chat_window.xml" plugin="y" />
+<include name="mapper.xml" plugin="y" />
 </muclient>

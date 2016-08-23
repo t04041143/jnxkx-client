@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+    <!DOCTYPE muclient>
+    <muclient>
+        <plugin name="Example_Mapper"
+          author="PkuXkx Lzkd"
+          id="63e6909083318cf63707c044"
+          language="Lua"
+          purpose="Example mapper"
+          save_state="y" date_written="2014-10-22" requires="4.61" version="1.0">
+            <description trim="y">
+
+            </description>
+        </plugin>
+        <aliases>
+        </aliases>
+        <triggers>
+            <trigger enabled="y" keep_evaluating="y" match="^(> )*    ÕâÀï.*µÄ³ö¿ÚÊÇ(.*)$" regexp="y" script="got_prompt" sequence="100">
+            </trigger>
+            <trigger enabled="y" keep_evaluating="y" match="^(> )*([^>;:+-.,]{1,16}) \- $" regexp="y" script="got_room_name" sequence="10">
+            </trigger>
+        </triggers>
+        <!--  Script  -->
+        <script>
+        <![CDATA[
+-- mapper module
+require "mapper"
+
+-- ²ÎÊýÉèÖÃ
+config = {
+    OUR_ROOM_COLOUR = {
+        name = "Our room",
+        colour = ColourNameToRGB "black",
+    },
+}
+
+-- µØÍ¼Êý¾Ý´æ·Å±äÁ¿
+rooms = {}
+
+-- -----------------------------------------------------------------
+-- ·¿¼ä±ä¶¯µÄÃüÁî¼ÇÂ¼
+-- -----------------------------------------------------------------
+local valid_direction = {
+    n = "n",
+    s = "s",
+    e = "e",
+    w = "w",
+    u = "u",
+    d = "d",
+    ne = "ne",
+    sw = "sw",
+    nw = "nw",
+    se = "se",
+    north = "n",
+    south = "s",
+    east = "e",
+    west = "w",
+    up = "u",
+    down = "d",
+    northeast = "ne",
+    northwest = "nw",
+    southeast = "se",
+    southwest = "sw",
+    ['in'] = "in",
+    out = "out",
+} -- end of valid_direction
+
+-- ·µ»ØÂ·¾¶
+local inverse_direction = {
+    n = "s",
+    s = "n",
+    e = "w",
+    w = "e",
+    u = "d",
+    d = "u",
+    ne = "sw",
+    sw = "ne",
+    nw = "se",
+    se = "nw",
+    ['in'] = "out",
+    out = "in",
+} -- end of inverse_direction
+
+-- -----------------------------------------------------------------
+-- mapper 'get_room' callback - µÃµ½·¿¼äµÄÎ¨Ò»uid
+-- -----------------------------------------------------------------
+function get_room(uid)
+
+    room = rooms[uid]
+    if not room then
+        return nil
+    end -- if not found
+
+
+    -- ÈçºÎ»­³öÒ»¸ö·¿¼ä
+    room.bordercolour = config.ROOM_COLOUR.colour
+    room.borderpen = miniwin.pen_solid
+    room.borderpenwidth = 1
+    room.fillbrush = miniwin.brush_null -- no fill
+
+    -- µ±Ç°·¿¼ä×ö³ö²»Í¬µÄÑÕÉ«±ê¼Ç
+    if uid == current_room then
+        room.bordercolour = config.OUR_ROOM_COLOUR.colour
+        room.borderpenwidth = 2
+    end -- not in this area
+
+    room.area = "The swamp" -- ¼ÙÉèÃ¿¸ö·¿¼ä¶¼ÔÚÕâ¸öÇøÓò£¨ÕâÀïÊÇÒÔºó½ø½×µÄ·Ö³ÇµØÍ¼ËùÓÃ£¬Äã¶®µÄ£©
+    room.hovermessage = room.name
+    return room
+end
+
+-- get_room
+
+-- -----------------------------------------------------------------
+-- Plugin Install --ÔØÈë²å¼þ
+-- -----------------------------------------------------------------
+function OnPluginInstall()
+    -- initialize mapper
+    mapper.init {
+        config = config, -- ie. colours, sizes
+        get_room = get_room, -- info about room (uid)
+        show_help = OnHelp, -- to show help
+    }
+
+    mapper.mapprint(string.format("MUSHclient mapper installed, version %0.1f", mapper.VERSION))
+end
+
+-- OnPluginInstall
+
+-- -----------------------------------------------------------------
+-- Here on prompt --ÏÔÊ¾µØÍ¼
+-- -----------------------------------------------------------------
+function got_prompt(name, line, wildcards)
+    room_name = uid .. "'s House" --uid + "House",ÕâÀï¿ÉÒÔ½øÐÐ¸÷ÖÖ±ä»¯
+    -- ¼ÙÉèÎÒÃÇÖªµÀ·¿¼äÃû×Ö
+    -- Èç¹ûrooms±íÖÐ£¬¸Ã·¿¼ä²»´æÔÚ£¬ÔòÌí¼Ó
+    if not rooms[uid] then
+        rooms[uid] = { name = room_name, exits = {} } --´ó¼Ò×¢ÒâÕâÀï,µ½ÕâÀïexites¶¼ÊÇ¿ÕµÄ
+    end -- if
+
+    -- roomsµÄ¸Ä±ä£¬×îºó¶¼ÔÚÕâÀïÌåÏÖ¡£
+    if uid ~= current_room
+            and current_room
+            and last_direction_moved then
+        -- ´ó¼Ò×¢Òâ£¬exitsÔÚÕâÀïÌåÏÖ
+        rooms[current_room].exits[last_direction_moved] = uid
+        -- Í¬Ê±£¬½«·´·½ÏòµÄÒ»Æð´¦ÀíÁË
+        rooms[uid].exits[inverse_direction[last_direction_moved]] = current_room
+    end -- if
+
+    -- ÕâÊÇµ±Ç°·¿¼ä
+    current_room = uid
+
+    -- ÏÔÊ¾
+    mapper.draw(current_room)
+end
+
+-- got_prompt
+
+-- -----------------------------------------------------------------
+-- Here on room name  --ÕâÀïÓ¦¸ÃµÃµ½room_nameµÄµØ·½,ÏÖÔÚÎÒÓÃÀ´Éú³ÉÎ¨Ò»µÄuid
+-- -----------------------------------------------------------------
+function got_room_name(name, line, wildcards)
+    local name = wildcards[1] --Õâ¾äÄ¿Ç°Ã»Ê²Ã´ÒâÒå
+    print(wildcards[2]) --°´Õý³£µÄË¼Â·,Õâ¸öÖµ,Ó¦¸Ã¾ÍÊÇroom_name,µ«Ä¿Ç°mapper.lua²»Ö§¸¶ÖÐÎÄ,ÎªÁË¿´³öÐ§¹û,ÏÈÕâÑù
+    uid = utils.tohex(utils.md5(wildcards[2])) --È¡±±ÏÀµ±Ç°·¿¼äÃûµÄMD5Âë
+    uid = uid:sub(1, 10) -- ½öÈ¡Ç°10Î»Êý,ÒÔ¼ò»¯Êý¾Ý
+    print(uid) --ÎªÁËÈÃ½Ì³Ì¿´³öÐ§¹û,¼ÓÁËÕâ¾ä
+
+    room_name = name --Õâ¾äÄ¿Ç°Ã»Ê²Ã´ÒâÒå,Ö»ÊÇÎªÁË±íÊ¾ÕâÀïÓ¦¸ÃÈ¡room_name
+end
+
+-- got_room_name
+
+-- -----------------------------------------------------------------
+-- try to detect when we send a movement command
+-- -----------------------------------------------------------------
+function OnPluginSent(sText)
+    last_direction_moved = valid_direction[sText]
+end
+
+-- OnPluginSent
+        ]]>
+        </script>
+    </muclient>
