@@ -187,11 +187,10 @@ function OnPluginInstall()
     local paramsString = GetVariable("winParams")
     if paramsString ~= nil and paramsString ~= "" then
         winParams = assert(loadstring(paramsString))()
-        winParams.init = true
-    else
-        -- 获得当前插件的唯一ID（24字符）
-        winParams.pluginId = GetPluginID()
     end
+
+    -- 获得当前插件的唯一ID（24字符）
+    winParams.pluginId = GetPluginID()
     
     -- 创建假窗口，获取字体相关信息
     check(WindowCreate(winParams.pluginId, 0, 0, 1, 1, 0, 0, winParams.backgroundColor))
