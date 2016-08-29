@@ -12,6 +12,11 @@
             </description>
         </plugin>
         <aliases>
+            <alias match="mapper find .*,.*"
+                enabled="y"
+                script="findPath"
+                sequence="100"
+            />
         </aliases>
         <triggers>
             <trigger enabled="y" keep_evaluating="y" match="^(> )*    这里.*的出口是(.*)$" regexp="y" script="got_prompt" sequence="100">
@@ -24,6 +29,10 @@
         <![CDATA[
 -- mapper module
 require "mapper"
+
+function findPath(src,target)
+    
+end
 
 -- 参数设置
 config = {
