@@ -66,15 +66,81 @@
 
 <script>
 <![CDATA[
-require "wait"
+require "tprint"
 
+-- -----------------------------------------------------------------
+-- 房间变动的命令记录
+-- -----------------------------------------------------------------
+local directionsFullName = {
+    north = "n",
+    south = "s",
+    east = "e",
+    west = "w",
+    up = "u",
+    down = "d",
+    northeast = "ne",
+    northwest = "nw",
+    southeast = "se",
+    southwest = "sw",
+    ['in'] = "in",
+    out = "out",
+}
+
+local directions = {
+    n = "n",
+    s = "s",
+    e = "e",
+    w = "w",
+    u = "u",
+    d = "d",
+    ne = "ne",
+    sw = "sw",
+    nw = "nw",
+    se = "se",
+    north = "n",
+    south = "s",
+    east = "e",
+    west = "w",
+    up = "u",
+    down = "d",
+    northeast = "ne",
+    northwest = "nw",
+    southeast = "se",
+    southwest = "sw",
+    ['in'] = "in",
+    out = "out",
+}
+
+-- 返回路径
+local inverseDir = {
+    n = "s",
+    s = "n",
+    e = "w",
+    w = "e",
+    u = "d",
+    d = "u",
+    ne = "sw",
+    sw = "ne",
+    nw = "se",
+    se = "nw",
+    ['in'] = "out",
+    out = "in",
+}
+
+local lastDir = null
 local currentArea = null
+local prevRoom = {}
 local currentRoom = {}
+
+
+function OnPluginSent(sText)
+    lastDir = directions[sText]
+end
 
 function setArea(name, line, wildcards)
     currentRoom.area = wildcards[2]
-
-    Note(currentRoom.area..' '..currentRoom.shortName..' '..currentRoom.exits)
+    findAndSaveCurrentRoom()
+    -- Note(currentRoom.area..' '..currentRoom.shortName..' '..currentRoom.exitsText)
 end
 
 function setRoomShortName(name, line, wildcards)
@@ -82,9 +148,73 @@ function setRoomShortName(name, line, wildcards)
 end
 
 function setRoomExits(name, line, wildcards)
-    currentRoom.exits = wildcards[2]
+    currentRoom.exits = {}
+    currentRoom.exitsText = wildcards[2]
+    for k,v in pairs(directionsFullName) do
+        if string.find(wildcards[2], "%s"..k) ~= nil or string.find(wildcards[2], k.."%s") then
+            currentRoom.exits[k] = -1
+        end
+    end
+    
+    -- tprint(currentRoom)
 end
 
+function findAndSaveCurrentRoom()
+    if(currentRoom.area and currentRoom.shortName and currentRoom.exits) then
+        if not currentRoom.exitsText then
+            currentRoom.exitsText = ''
+        end
+
+        local roomFlag = utils.tohex(utils.md5(currentRoom.area..' '..currentRoom.shortName..' '..currentRoom.exitsText))
+        -- forceOpenDB()
+
+        local status = DatabaseOpen("db", GetInfo (66) .. "mushclient_prefs.sqlite")
+        Note('status='..status)
+
+        databases = DatabaseList()
+
+if databases then
+  for _, v in ipairs (databases) do 
+    Note (v) 
+  end
+end -- if any
+
+DatabaseExec("db", string.format(
+                "INSERT INTO main.rooms (flag, short_name, area) VALUES('%s', '%s', '%s')",
+                roomFlag, currentRoom.shortName,currentRoom.area
+            ))
+DatabaseStep ("db") 
+        -- assert (db:execute(
+        --     string.format(
+        --         "INSERT INTO main.rooms (flag, short_name, area) VALUES('%s', '%s', '%s')",
+        --         roomFlag, currentRoom.shortName,currentRoom.area
+        --     )
+        -- ))
+
+--for row in db:nrows("SELECT * FROM main.sqlite_sequence") do
+ -- print ("\n------ list ---------\n")
+ -- tprint (row)
+--end
+
+DatabaseClose ("db")
+        --closeDB()
+
+        Note('房间采集完成')
+    end
+end
+
+function forceOpenDB()
+   if db == nill or not db:isopen() then
+        Note(GetInfo (66) .. "mushclient_prefs.sqlite.db")
+      db = assert (sqlite3.open(GetInfo (66) .. "mushclient_prefs.sqlite.db"))
+   end
+end
+
+function closeDB()
+    if db:isopen() then
+        db:close()
+    end
+end
 
 
 ]]>

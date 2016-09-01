@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE muclient>
-<!-- Saved on 2016Äê °ËÔÂ 31ÈÕ ÐÇÆÚÈý, ÏÂÎç 5:28 -->
+<!-- Saved on 2016Äê ¾ÅÔÂ 01ÈÕ ÐÇÆÚËÄ, ÏÂÎç 6:32 -->
 <!-- MuClient version 4.94 -->
 <!-- Written by Nick Gammon -->
 <!-- Home Page: http://www.mushclient.com/ -->
@@ -14,7 +14,7 @@
 <variables
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-08-31 17:28:53"
+   date_saved="2016-09-01 18:32:18"
   >
   <variable name="a66c7d927ed3516f8cfadc2ec">1</variable>
 </variables>
