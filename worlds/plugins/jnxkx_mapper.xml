@@ -68,6 +68,8 @@
 <![CDATA[
 require "tprint"
 
+local dbPath = GetInfo (66) .. "mushclient_prefs.sqlite"
+
 -- -----------------------------------------------------------------
 -- 房间变动的命令记录
 -- -----------------------------------------------------------------
@@ -132,6 +134,13 @@ local currentArea = null
 local prevRoom = {}
 local currentRoom = {}
 
+function OnPluginInstall ()
+    forceOpenDB()
+end
+
+function OnPluginSaveState ()
+    reopenDB()
+end
 
 function OnPluginSent(sText)
     lastDir = directions[sText]
@@ -166,38 +175,28 @@ function findAndSaveCurrentRoom()
         end
 
         local roomFlag = utils.tohex(utils.md5(currentRoom.area..' '..currentRoom.shortName..' '..currentRoom.exitsText))
-        -- forceOpenDB()
+        local existRooms = db:nrows( string.format("SELECT * FROM main.rooms where flag='%s'", roomFlag))
+        if not existRooms or #existRooms = 0 then
+               local status = assert(db:execute(
+            string.format(
+               "INSERT INTO main.rooms (flag, short_name, area) VALUES('%s', '%s', '%s')",
+               roomFlag, currentRoom.shortName,currentRoom.area
+        )
+    ))
 
-        local status = DatabaseOpen("db", GetInfo (66) .. "mushclient_prefs.sqlite")
-        Note('status='..status)
+   if status ~= sqlite3.OK then
+        Note('新建房间发生错误['.. status ..'] : '..db:errmsg())
+   end
+        end
 
-        databases = DatabaseList()
 
-if databases then
-  for _, v in ipairs (databases) do 
-    Note (v) 
-  end
-end -- if any
 
-DatabaseExec("db", string.format(
-                "INSERT INTO main.rooms (flag, short_name, area) VALUES('%s', '%s', '%s')",
-                roomFlag, currentRoom.shortName,currentRoom.area
-            ))
-DatabaseStep ("db") 
-        -- assert (db:execute(
-        --     string.format(
-        --         "INSERT INTO main.rooms (flag, short_name, area) VALUES('%s', '%s', '%s')",
-        --         roomFlag, currentRoom.shortName,currentRoom.area
-        --     )
-        -- ))
-
---for row in db:nrows("SELECT * FROM main.sqlite_sequence") do
- -- print ("\n------ list ---------\n")
- -- tprint (row)
+--for row in db:nrows("SELECT * FROM main.rooms") do
+-- print ("\n------ list ---------\n")
+ --tprint (row)
 --end
 
-DatabaseClose ("db")
-        --closeDB()
+        closeDB()
 
         Note('房间采集完成')
     end
@@ -205,13 +204,20 @@ end
 
 function forceOpenDB()
    if db == nill or not db:isopen() then
-        Note(GetInfo (66) .. "mushclient_prefs.sqlite.db")
-      db = assert (sqlite3.open(GetInfo (66) .. "mushclient_prefs.sqlite.db"))
+      db = assert (sqlite3.open(dbPath))
    end
 end
 
+function reopenDB()
+    if db and  db:isopen() then
+      db:close()
+   end
+
+   db = assert (sqlite3.open(dbPath))
+end
+
 function closeDB()
-    if db:isopen() then
+    if db and db:isopen() then
         db:close()
     end
 end
