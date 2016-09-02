@@ -145,9 +145,17 @@ function OnPluginSent(sText)
     lastDir = directions[sText]
 end
 
+function OnPluginClose()
+    closeDB()
+end
+
+function OnPluginDisable()
+  closeDB()
+  end
+
 function setArea(name, line, wildcards)
     currentRoom.area = wildcards[2]
-    findAndSaveCurrentRoom()
+    saveCurrentRoom()
     -- Note(currentRoom.area..' '..currentRoom.shortName..' '..currentRoom.exitsText)
 end
 
@@ -156,18 +164,40 @@ function setRoomShortName(name, line, wildcards)
 end
 
 function setRoomExits(name, line, wildcards)
-    currentRoom.exits = {}
+   -- currentRoom.exits = {}
     currentRoom.exitsText = wildcards[2]
-    for k, v in pairs(directionsFullName) do
-        if string.find(wildcards[2], "%s" .. k) ~= nil or string.find(wildcards[2], k .. "%s") then
-            currentRoom.exits[k] = -1
-        end
+    -- for k, v in pairs(directionsFullName) do
+    --     if string.find(wildcards[2], "%s" .. k) ~= nil or string.find(wildcards[2], k .. "%s") then
+    --         currentRoom.exits[k] = -1
+    --     end
+    -- end
+
+    -- 如果上个命令是方向命令，说明场景发生切换
+    if lastDir then
+      prevRoom = currentRoom
+      currentRoom = {}
     end
 
-    -- tprint(currentRoom)
+    -- 如果当前房间和上个房间都为空，说明是初次加载需要定位房间
+    if not currentRoom.shortName and not prevRoom.shortName
+
+    end
 end
 
-function findAndSaveCurrentRoom()
+function findCurrentRoom()
+    if (currentRoom.area and currentRoom.shortName and currentRoom.exits) then
+        if not currentRoom.exitsText then
+            currentRoom.exitsText = ''
+        end
+
+        local roomFlag = utils.tohex(utils.md5(currentRoom.area .. ' ' .. currentRoom.shortName .. ' ' .. currentRoom.exitsText))
+        for x in db:urows(string.format("SELECT * FROM main.rooms where flag='%s'", roomFlag)) do
+            tprint x
+        end
+    end
+end
+
+function saveCurrentRoom()
     if (currentRoom.area and currentRoom.shortName and currentRoom.exits) then
         if not currentRoom.exitsText then
             currentRoom.exitsText = ''
