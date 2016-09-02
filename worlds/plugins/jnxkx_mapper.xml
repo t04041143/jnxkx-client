@@ -66,6 +66,7 @@
     <script>
         <![CDATA[
 require "tprint"
+require "copytable"
 
 local dbPath = GetInfo(66) .. "mushclient_prefs.sqlite"
 
@@ -129,7 +130,6 @@ local inverseDir = {
 }
 
 local lastDir = null
-local currentArea = null
 local prevRoom = {}
 local currentRoom = {}
 
@@ -142,7 +142,9 @@ function OnPluginSaveState()
 end
 
 function OnPluginSent(sText)
-    lastDir = directions[sText]
+    if directions[sText] then
+        lastDir = directions[sText]
+    end
 end
 
 function OnPluginClose()
@@ -150,55 +152,61 @@ function OnPluginClose()
 end
 
 function OnPluginDisable()
-  closeDB()
-  end
+    closeDB()
+end
 
 function setArea(name, line, wildcards)
+    SendNoEcho("q")
     currentRoom.area = wildcards[2]
-    saveCurrentRoom()
-    -- Note(currentRoom.area..' '..currentRoom.shortName..' '..currentRoom.exitsText)
+    findAndSaveCurrentRoom()
 end
 
 function setRoomShortName(name, line, wildcards)
+    -- 如果上个命令是方向命令，说明场景发生切换
+    if lastDir then
+        prevRoom = copytable.deep(currentRoom)
+        currentRoom.rid = nil
+    end
+    -- 更新当前房间的短名
     currentRoom.shortName = wildcards[2]
+    SendNoEcho("localmaps")
 end
 
 function setRoomExits(name, line, wildcards)
-   -- currentRoom.exits = {}
+    -- currentRoom.exits = {}
     currentRoom.exitsText = wildcards[2]
     -- for k, v in pairs(directionsFullName) do
     --     if string.find(wildcards[2], "%s" .. k) ~= nil or string.find(wildcards[2], k .. "%s") then
     --         currentRoom.exits[k] = -1
     --     end
     -- end
-
-    -- 如果上个命令是方向命令，说明场景发生切换
-    if lastDir then
-      prevRoom = currentRoom
-      currentRoom = {}
-    end
-
-    -- 如果当前房间和上个房间都为空，说明是初次加载需要定位房间
-    if not currentRoom.shortName and not prevRoom.shortName
-
-    end
 end
 
 function findCurrentRoom()
-    if (currentRoom.area and currentRoom.shortName and currentRoom.exits) then
+    if (currentRoom.area and currentRoom.shortName and currentRoom.exitsText) then
         if not currentRoom.exitsText then
             currentRoom.exitsText = ''
         end
 
         local roomFlag = utils.tohex(utils.md5(currentRoom.area .. ' ' .. currentRoom.shortName .. ' ' .. currentRoom.exitsText))
-        for x in db:urows(string.format("SELECT * FROM main.rooms where flag='%s'", roomFlag)) do
-            tprint x
+
+        for row in db:nrows(string.format("SELECT * FROM main.rooms where flag='%s'", roomFlag)) do
+            currentRoom.rid = row.rid
+            currentRoom.exits = {}
+            -- 如果数据存在，那么提取出口信息
+            for row in db:nrows(string.format("SELECT * FROM main.paths where from_rid='%s'", row.rid)) do
+                currentRoom.exits[row.dir_cmd] = row.to_rid
+            end
         end
+        --print('---- 当前房间 -----')
+        --tprint(currentRoom)
     end
 end
 
-function saveCurrentRoom()
-    if (currentRoom.area and currentRoom.shortName and currentRoom.exits) then
+function findAndSaveCurrentRoom()
+    findCurrentRoom()
+
+    if (currentRoom.area and currentRoom.shortName and currentRoom.exitsText) then
         if not currentRoom.exitsText then
             currentRoom.exitsText = ''
         end
@@ -216,12 +224,30 @@ function saveCurrentRoom()
                 Note('新建房间发生错误[' .. status .. '] : ' .. db:errmsg())
             else
                 Note('房间已经存入数据')
+                findCurrentRoom()
             end
         end
-        --for row in db:nrows("SELECT * FROM main.rooms") do
-        -- print ("\n------ list ---------\n")
-        --tprint (row)
-        --end
+    end
+
+    -- 如果是从其他房间过来的话，需要插入exits数据
+    if lastDir then
+        for x in db:urows(string.format("SELECT count(*) FROM main.paths where from_rid='%s' and to_rid='%s' and dir_cmd='%s'",
+            prevRoom.rid, currentRoom.rid, lastDir)) do
+
+            if x == 0 then
+
+                local status = assert(db:execute(string.format("INSERT INTO main.paths (from_rid, to_rid, dir_cmd) VALUES('%s', '%s', '%s')",
+                    prevRoom.rid, currentRoom.rid, lastDir)))
+
+                if status ~= sqlite3.OK then
+                    Note('新建路径发生错误[' .. status .. '] : ' .. db:errmsg())
+                else
+                    Note('路径已经存入数据')
+                end
+            end
+        end
+
+        lastDir = nil
     end
 end
 
@@ -245,8 +271,8 @@ function closeDB()
     end
 end
 
-function OnHelp ()
-    world.Note (world.GetPluginInfo (world.GetPluginID (), 3))
+function OnHelp()
+    world.Note(world.GetPluginInfo(world.GetPluginID(), 3))
 end
         ]]>
     </script>
