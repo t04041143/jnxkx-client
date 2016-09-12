@@ -54,10 +54,8 @@
     </triggers>
 
     <aliases>
-        <alias script="OnHelp"
-               match="jnxkx_mapper:help"
-               enabled="y">
-        </alias>
+        <alias script="OnHelp" match="mapper:help" enabled="y"></alias>
+        <alias script="onShowRoomInfo" match="mapper:info (\d+)"  enabled="y" regexp="y"></alias>
     </aliases>
 
     <!--  Script  -->
@@ -165,7 +163,13 @@ function setRoomShortName(name, line, wildcards)
     -- 如果上个命令是方向命令，说明场景发生切换
     if lastDir then
         prevRoom = copytable.deep(currentRoom)
-        currentRoom.rid = nil
+
+        if prevRoom.rid and prevRoom.exits[lastDir] then
+            -- 通过id获取房间
+            currentRoom = findRoomByRid(prevRoom.exits[lastDir])
+        else
+            currentRoom.rid = nil
+        end
     end
     -- 更新当前房间的短名
     currentRoom.shortName = wildcards[2]
@@ -180,6 +184,37 @@ function setRoomExits(name, line, wildcards)
     --         currentRoom.exits[k] = -1
     --     end
     -- end
+end
+
+function findRoomByRid(rid)
+    local result = {}
+    for row in db:nrows(string.format("SELECT * FROM main.rooms where rid=%d", rid)) do
+        result.rid = row.rid
+        result.exits = {}
+        -- 如果数据存在，那么提取出口信息
+        for row in db:nrows(string.format("SELECT * FROM main.paths where from_rid=%d", row.rid)) do
+            result.exits[row.dir_cmd] = row.to_rid
+        end
+    end
+
+    return result
+end
+
+function getRoomInfo(rid)
+    local result = {}
+    for row in db:nrows(string.format("SELECT * FROM main.rooms where rid=%d", rid)) do
+        result.rid = row.rid
+        result.exits = {}
+        -- 如果数据存在，那么提取出口信息
+        for row in db:nrows(string.format("SELECT * FROM main.paths where from_rid=%d", row.rid)) do
+            local dirCmd = row.dir_cmd
+            for row in db:nrows(string.format("SELECT * FROM main.rooms where rid=%d", row.to_rid)) do
+                result.exits[dirCmd] = row.short_name .. ' ' .. row.rid
+            end
+        end
+    end
+
+    return result
 end
 
 function findCurrentRoom()
@@ -273,6 +308,11 @@ end
 
 function OnHelp()
     world.Note(world.GetPluginInfo(world.GetPluginID(), 3))
+end
+
+function onShowRoomInfo(name, line, wildcards)
+   local roomInfo = getRoomInfo(wildcards[1])
+   tprint(roomInfo)
 end
         ]]>
     </script>
