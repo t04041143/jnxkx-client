@@ -163,6 +163,7 @@ end
 function setArea(name, line, wildcards)
     SendNoEcho("q")
     currentRoom.area = wildcards[2]
+
     findAndSaveCurrentRoom()
 end
 
@@ -226,35 +227,64 @@ function getRoomInfo(rid)
     return result
 end
 
-function findCurrentRoom()
-    if (currentRoom.area and currentRoom.shortName and currentRoom.exitsText) then
-        if not currentRoom.exitsText then
-            currentRoom.exitsText = ''
+function findRoomByFlag(shortName, exitsText,area)
+    local result = {}
+    if (area and shortName) then
+        if not exitsText then
+            exitsText = ''
         end
 
-        local roomFlag = utils.tohex(utils.md5(currentRoom.area .. ' ' .. currentRoom.shortName .. ' ' .. currentRoom.exitsText))
+        local roomFlag = utils.tohex(utils.md5(area .. ' ' .. shortName .. ' ' .. exitsText))
 
         for row in db:nrows(string.format("SELECT * FROM main.rooms where flag='%s'", roomFlag)) do
-            currentRoom.rid = row.rid
-            currentRoom.exits = {}
+            result.rid = row.rid
+            result.exits = {}
             -- 如果数据存在，那么提取出口信息
             for row in db:nrows(string.format("SELECT * FROM main.paths where from_rid='%s'", row.rid)) do
-                currentRoom.exits[row.dir_cmd] = row.to_rid
+                result.exits[row.dir_cmd] = row.to_rid
             end
         end
-        --print('---- 当前房间 -----')
-        --tprint(currentRoom)
+            --print('---- 当前房间 -----')
+            --tprint(currentRoom)
     end
+
+    return result
 end
 
-function findAndSaveCurrentRoom()
-    findCurrentRoom()
+-- function findCurrentRoom()
+--     if not currentRoom.rid then
+--         if (currentRoom.area and currentRoom.shortName and currentRoom.exitsText) then
+--             if not currentRoom.exitsText then
+--                 currentRoom.exitsText = ''
+--             end
 
-    if (currentRoom.area and currentRoom.shortName and currentRoom.exitsText) then
+--             local roomFlag = utils.tohex(utils.md5(currentRoom.area .. ' ' .. currentRoom.shortName .. ' ' .. currentRoom.exitsText))
+
+--             for row in db:nrows(string.format("SELECT * FROM main.rooms where flag='%s'", roomFlag)) do
+--                 currentRoom.rid = row.rid
+--                 currentRoom.exits = {}
+--                 -- 如果数据存在，那么提取出口信息
+--                 for row in db:nrows(string.format("SELECT * FROM main.paths where from_rid='%s'", row.rid)) do
+--                     currentRoom.exits[row.dir_cmd] = row.to_rid
+--                 end
+--             end
+--             --print('---- 当前房间 -----')
+--             --tprint(currentRoom)
+--         end
+--     end
+-- end
+
+function findAndSaveCurrentRoom()
+    local dbRes = findRoomByFlag(currentRoom.shortName, currentRoom.exitsText, currentRoom.area)
+
+    if dbRes.rid then
+        -- 如果数据库中存在，则从数据库中取值覆盖
+        currentRoom = dbRes
+    else
+        -- 如果数据库中不存在，则新建
         if not currentRoom.exitsText then
             currentRoom.exitsText = ''
         end
-
         local roomFlag = utils.tohex(utils.md5(currentRoom.area .. ' ' .. currentRoom.shortName .. ' ' .. currentRoom.exitsText))
         local existRooms = 0
         for x in db:urows(string.format("SELECT count(*) FROM main.rooms where flag='%s'", roomFlag)) do
@@ -268,7 +298,7 @@ function findAndSaveCurrentRoom()
                 Note('新建房间发生错误[' .. status .. '] : ' .. db:errmsg())
             else
                 Note('房间已经存入数据')
-                findCurrentRoom()
+                -- findCurrentRoom()
             end
         end
     end
