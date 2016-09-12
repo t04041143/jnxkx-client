@@ -54,6 +54,7 @@
     </triggers>
 
     <aliases>
+        <alias script="onDebugInfo" match="mapper:debugInfo" enabled="y"></alias>
         <alias script="OnHelp" match="mapper:help" enabled="y"></alias>
         <alias script="onShowRoomInfo" match="mapper:info (\d+)"  enabled="y" regexp="y"></alias>
     </aliases>
@@ -133,6 +134,12 @@ local currentRoom = {}
 
 function OnPluginInstall()
     forceOpenDB()
+end
+
+function OnPluginConnect()
+    local lastDir = null
+    local prevRoom = {}
+    local currentRoom = {}
 end
 
 function OnPluginSaveState()
@@ -310,6 +317,16 @@ end
 
 function OnHelp()
     world.Note(world.GetPluginInfo(world.GetPluginID(), 3))
+end
+
+function onDebugInfo()
+    print("====== 当前地图内存信息 ======")
+    print("上个房间信息: ")
+    tprint(prevRoom)
+    print("------------------------------")
+    print("当前房间信息: ")
+    tprint(currentRoom)
+    print("==============================")
 end
 
 function onShowRoomInfo(name, line, wildcards)
