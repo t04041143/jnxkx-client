@@ -204,6 +204,8 @@ function getRoomInfo(rid)
     local result = {}
     for row in db:nrows(string.format("SELECT * FROM main.rooms where rid=%d", rid)) do
         result.rid = row.rid
+        result.shortName = row.short_name
+        result.areaName = row.area
         result.exits = {}
         -- 如果数据存在，那么提取出口信息
         for row in db:nrows(string.format("SELECT * FROM main.paths where from_rid=%d", row.rid)) do
@@ -311,8 +313,10 @@ function OnHelp()
 end
 
 function onShowRoomInfo(name, line, wildcards)
+    print("====== 房间信息查询结果 ======")
    local roomInfo = getRoomInfo(wildcards[1])
    tprint(roomInfo)
+   print("==============================")
 end
         ]]>
     </script>
