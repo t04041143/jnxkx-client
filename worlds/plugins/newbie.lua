@@ -1,4 +1,4 @@
-require "wait"
+require "jnxkxwalker"
 
 player = {
     gender = 1, -- 1ÄÐ    2Å®
@@ -10,6 +10,8 @@ function player.setGender(gender)
         player.gender = 2
     end
 end
+
+jnxkxwalker.doWalk(0,1,0)
 
 --require "jnxkxmapper"
 
