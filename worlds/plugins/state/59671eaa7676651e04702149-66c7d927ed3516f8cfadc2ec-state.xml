@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE muclient>
-<!-- Saved on 2016Äê ¾ÅÔÂ 12ÈÕ ÐÇÆÚÒ», ÏÂÎç 6:00 -->
+<!-- Saved on 2016Äê ¾ÅÔÂ 13ÈÕ ÐÇÆÚ¶þ, ÏÂÎç 1:52 -->
 <!-- MuClient version 4.94 -->
 <!-- Written by Nick Gammon -->
 <!-- Home Page: http://www.mushclient.com/ -->
@@ -14,7 +14,7 @@
 <variables
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2016-09-12 18:00:58"
+   date_saved="2016-09-13 13:52:53"
   >
   <variable name="enabled">true</variable>
   <variable name="login">1</variable>
@@ -43,14 +43,14 @@
   winParams.init = true
   winParams.resizeTagSize = 10
   winParams.width = 509
-  winParams.pluginId = "66c7d927ed3516f8cfadc2ec"
-  winParams.x = 0
   winParams.y = 552
-  winParams.height = 52.7
-  winParams.lastRefresh = 361178.36239858
-  winParams.effectiveWidth = 509
-  winParams.fontName = "»ªÎÄÖÐËÎ"
+  winParams.x = 0
   winParams.backgroundColour = 0
+  winParams.fontName = "»ªÎÄÖÐËÎ"
+  winParams.height = 52.7
+  winParams.effectiveWidth = 509
+  winParams.lastRefresh = 361178.36239858
+  winParams.pluginId = "66c7d927ed3516f8cfadc2ec"
  return winParams</variable>
 </variables>
 </muclient>

@@ -293,7 +293,7 @@ function findAndSaveCurrentRoom()
         if existRooms == 0 then
             local status = assert(db:execute(string.format("INSERT INTO main.rooms (flag, short_name, area) VALUES('%s', '%s', '%s')",
                 roomFlag, currentRoom.shortName, currentRoom.area)))
-
+            currentRoom = findRoomByRid(db:last_insert_rowid())
             if status ~= sqlite3.OK then
                 Note('新建房间发生错误[' .. status .. '] : ' .. db:errmsg())
             else
@@ -309,14 +309,26 @@ function findAndSaveCurrentRoom()
             prevRoom.rid, currentRoom.rid, lastDir)) do
 
             if x == 0 then
-
                 local status = assert(db:execute(string.format("INSERT INTO main.paths (from_rid, to_rid, dir_cmd) VALUES('%s', '%s', '%s')",
                     prevRoom.rid, currentRoom.rid, lastDir)))
 
                 if status ~= sqlite3.OK then
                     Note('新建路径发生错误[' .. status .. '] : ' .. db:errmsg())
                 else
-                    Note('路径已经存入数据')
+                    Note(string.format("存入路径数据 from: %d to: %d dir_cmd: %s", prevRoom.rid, currentRoom.rid, lastDir))
+                end
+
+                for p in db:urows(string.format("SELECT count(*) FROM main.paths where from_rid=%d and to_rid=%d and dir_cmd='%s'", currentRoom.rid, prevRoom.rid, inverseDir[lastDir])) do
+                    if p == 0 then
+                        status = assert(db:execute(string.format("INSERT INTO main.paths (from_rid, to_rid, dir_cmd) VALUES('%s', '%s', '%s')",
+                    currentRoom.rid, prevRoom.rid, inverseDir[lastDir])))
+                    end
+                end
+
+                if status ~= sqlite3.OK then
+                    Note('新建反向路径发生错误[' .. status .. '] : ' .. db:errmsg())
+                else
+                    Note(string.format("存入反向路径路径数据 from: %d to: %d dir_cmd: %s", currentRoom.rid, prevRoom.rid, inverseDir[lastDir]))
                 end
             end
         end
