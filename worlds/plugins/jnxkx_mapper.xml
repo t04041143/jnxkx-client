@@ -54,9 +54,10 @@
     </triggers>
 
     <aliases>
-        <alias script="onDebugInfo" match="mapper:debugInfo" enabled="y"></alias>
-        <alias script="OnHelp" match="mapper:help" enabled="y"></alias>
-        <alias script="onShowRoomInfo" match="mapper:info (\d+)"  enabled="y" regexp="y"></alias>
+        <alias script="onDebugInfo" match="^mapper:debugInfo" enabled="y" group="mapper"></alias>
+        <alias script="OnHelp" match="^mapper:help" enabled="y" group="mapper"></alias>
+        <alias script="onShowRoomInfo" match="^mapper:info\s+(\d+)"  enabled="y" regexp="y" group="mapper"></alias>
+        <alias script="onShowPath" match="^mapper:getpath\s+(\d+)\s+(\d+)\s*(\d?)" enabled="y" group="mapper" regexp="y"></alias>
     </aliases>
 
     <!--  Script  -->
@@ -66,6 +67,13 @@
         <![CDATA[
 require "tprint"
 require "copytable"
+require "jnxkxmapper"
+
+-- 载入地图数据
+local mapperStatus = mapper.open(GetInfo(66) .. 'rooms_all.h')
+if (mapperStatus == 0) then
+    print "地图数据载入失败"
+end
 
 local dbPath = GetInfo(66) .. "mushclient_prefs.sqlite"
 
@@ -400,6 +408,21 @@ function onShowRoomInfo(name, line, wildcards)
    local roomInfo = getRoomInfo(wildcards[1])
    tprint(roomInfo)
    print("==============================")
+end
+
+function onShowPath(name, line, wildcards)
+    local fly = 0
+    if table.getn(wildcards) >=3 and wildcards[3] ~= '' then
+        fly = wildcards[3]
+    end
+
+    local path = mapper.getpath(wildcards[1],wildcards[2],fly)
+
+    if (path == "") then
+        print("未找到可以到达路径")
+    else
+        print("路径: "..path)
+    end
 end
         ]]>
     </script>
